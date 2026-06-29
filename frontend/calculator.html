@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合約倉位計算機｜風險反推槓桿・爆倉價・強平緩衝｜SLASH RADAR</title>
+<meta name="description" content="免費合約倉位計算機：先設能虧多少，反推部位大小、所需保證金、建議槓桿與爆倉價，並警示止損與強平的緩衝距離。做多做空通用。">
+<meta name="keywords" content="倉位計算機,合約計算機,爆倉價,槓桿計算,止損,強平,保證金,部位大小">
+<link rel="canonical" href="https://radar.slash-invest.com/calculator">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="合約倉位計算機｜SLASH RADAR">
+<style>
+:root{--bg:#050505;--panel:#0d0c09;--panel2:#141108;--line:rgba(212,175,55,.18);
+  --line2:rgba(255,255,255,.07);--gold:#d4af37;--gold2:#f5c84b;--text:#f5f1e8;
+  --muted:#9b927f;--soft:#6f6759;--green:#16c784;--red:#ea3943;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(212,175,55,.10),transparent 30%),linear-gradient(135deg,#040404,#0a0906 48%,#060606);}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px 60px}
+header{display:flex;align-items:center;gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:18px}.logo b{color:var(--gold2)}
+nav{display:flex;gap:18px;font-size:14px;margin-left:auto}
+nav a{color:var(--muted);text-decoration:none}nav a:hover,nav a.on{color:var(--gold2)}
+h1{font-size:22px;margin:22px 0 4px}.sub{color:var(--soft);font-size:13px;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(160deg,var(--panel),#0a0805);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.card h2{font-size:14px;color:var(--gold2);margin-bottom:14px;letter-spacing:.5px}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+input{width:100%;background:#0a0805;border:1px solid var(--line2);border-radius:8px;color:var(--text);
+  padding:9px 11px;font-size:15px;font-family:inherit}
+input:focus{outline:none;border-color:var(--gold)}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.seg button{flex:1;min-width:48px;background:#0a0805;border:1px solid var(--line2);color:var(--muted);
+  padding:7px 4px;border-radius:7px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.seg button.on{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1306;border-color:transparent;font-weight:700}
+.dir{display:flex;gap:8px;margin-top:4px}
+.dir button{flex:1;padding:10px;border-radius:8px;border:1px solid var(--line2);background:#0a0805;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.dir button.long.on{background:rgba(22,199,132,.16);border-color:var(--green);color:var(--green)}
+.dir button.short.on{background:rgba(234,57,67,.16);border-color:var(--red);color:var(--red)}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px dashed var(--line2)}
+.row:last-child{border:none}
+.row .k{font-size:13px;color:var(--muted)}.row .v{font-size:17px;font-weight:700}
+.v.big{font-size:22px}.v.green{color:var(--green)}.v.red{color:var(--red)}.v.gold{color:var(--gold2)}
+.hint{font-size:11px;color:var(--soft);margin-top:3px}
+.disc{margin-top:18px;font-size:11px;color:var(--soft);line-height:1.6;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">SLASH <b>RADAR</b></div>
+    <nav><a href="/">市場儀表板</a><a class="on">倉位計算機</a></nav>
+  </header>
+  <h1>倉位計算機</h1>
+  <div class="sub">先設定「能虧多少」，反推部位、槓桿與爆倉緩衝。先想風險，再想倉位。</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>① 風險設定</h2>
+      <label>帳戶總資金（USDT）</label>
+      <input id="equity" type="number" value="1000" inputmode="decimal">
+      <label>單筆止損風險（佔總資金 %）</label>
+      <div class="seg" id="riskSeg">
+        <button data-v="1">1%</button><button data-v="2" class="on">2%</button>
+        <button data-v="3">3%</button><button data-v="5">5%</button><button data-v="10">10%</button>
+      </div>
+      <input id="risk" type="number" value="2" step="0.1" inputmode="decimal" style="margin-top:8px">
+
+      <label>方向</label>
+      <div class="dir">
+        <button class="long on" id="long">做多 ↑</button>
+        <button class="short" id="short">做空 ↓</button>
+      </div>
+
+      <label>進場價</label>
+      <input id="entry" type="number" value="100" inputmode="decimal">
+      <label>止損價</label>
+      <input id="stop" type="number" value="97" inputmode="decimal">
+
+      <label>實際使用槓桿（x）</label>
+      <div class="seg" id="levSeg">
+        <button data-v="3">3x</button><button data-v="5">5x</button><button data-v="10">10x</button>
+        <button data-v="20">20x</button><button data-v="50">50x</button><button data-v="100">100x</button>
+      </div>
+      <input id="lev" type="number" value="10" inputmode="decimal" style="margin-top:8px">
+    </div>
+
+    <div class="card">
+      <h2>② 計算結果</h2>
+      <div class="row"><span class="k">可虧金額（止損金額）</span><span class="v big gold" id="rRisk">–</span></div>
+      <div class="row"><span class="k">止損距離</span><span class="v" id="rSlDist">–</span></div>
+      <div class="row"><span class="k">建議倉位（名目價值）</span><span class="v" id="rNotional">–</span></div>
+      <div class="row"><span class="k">所需保證金（成本）</span><span class="v" id="rMargin">–</span></div>
+      <div class="row"><span class="k">止損 / 保證金</span><span class="v" id="rSlMargin">–</span></div>
+      <div class="row"><span class="k">爆倉價估算</span><span class="v" id="rLiq">–</span></div>
+      <div class="row"><span class="k">距離強平緩衝</span><span class="v" id="rBuffer">–</span></div>
+      <div class="row"><span class="k">建議槓桿上限</span><span class="v gold" id="rSuggest">–</span></div>
+      <div class="hint" id="bufHint"></div>
+    </div>
+  </div>
+
+  <div class="disc">
+    ⚠️ <b>免責</b>：爆倉價為<b>逐倉、未含手續費與維持保證金率</b>的估算，實際以交易所為準。本工具為風險管理輔助計算，所有數據僅供教育與研究參考，<b>不構成任何投資建議或操作指令</b>。合約交易高風險，可能損失全部本金。
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let dir="long";
+function fmt(n,d=2){ if(!isFinite(n))return "–"; return n.toLocaleString(undefined,{maximumFractionDigits:d}); }
+function calc(){
+  const eq=+$("equity").value, riskPct=+$("risk").value, entry=+$("entry").value, stop=+$("stop").value, L=+$("lev").value;
+  const riskAmt=eq*riskPct/100;
+  $("rRisk").textContent=fmt(riskAmt)+" USDT";
+  if(!entry||!stop||entry<=0){ ["rSlDist","rNotional","rMargin","rSlMargin","rLiq","rBuffer","rSuggest"].forEach(i=>$(i).textContent="–"); return; }
+  const slPct=Math.abs(entry-stop)/entry;           // 止損距離
+  $("rSlDist").textContent=fmt(slPct*100)+" %";
+  const notional= slPct>0 ? riskAmt/slPct : 0;      // 反推名目部位
+  $("rNotional").textContent=fmt(notional)+" USDT";
+  const margin= L>0 ? notional/L : 0;
+  $("rMargin").textContent=fmt(margin)+" USDT";
+  $("rSlMargin").textContent= margin>0 ? fmt(riskAmt/margin*100)+" %" : "–";
+  // 爆倉價（逐倉簡化）
+  const liq= dir==="long" ? entry*(1-1/L) : entry*(1+1/L);
+  $("rLiq").textContent="$"+fmt(liq,6);
+  // 強平緩衝：爆倉距離 - 止損距離
+  const liqDist=1/L, buf=liqDist-slPct;
+  const bufEl=$("rBuffer");
+  bufEl.textContent=(buf>=0?"+":"")+fmt(buf*100)+" %";
+  bufEl.className="v "+(buf>=0?"green":"red");
+  $("bufHint").textContent= buf>=0
+    ? "✓ 止損會先於爆倉觸發，部位安全。"
+    : "✗ 警告：止損價已超過爆倉價，會先爆倉！請降低槓桿。";
+  // 建議槓桿上限：讓爆倉距離 ≥ 止損距離的 1.5 倍（留緩衝）
+  const suggest= slPct>0 ? Math.max(1, Math.floor(1/(slPct*1.5))) : 100;
+  $("rSuggest").textContent= Math.min(suggest,125)+" x";
+}
+// 綁定
+["equity","risk","entry","stop","lev"].forEach(id=>$(id).addEventListener("input",calc));
+function segBind(segId,inputId){
+  $(segId).addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    [...$(segId).children].forEach(x=>x.classList.remove("on"));b.classList.add("on");
+    $(inputId).value=b.dataset.v;calc();});
+}
+segBind("riskSeg","risk"); segBind("levSeg","lev");
+$("long").onclick=()=>{dir="long";$("long").classList.add("on");$("short").classList.remove("on");calc();};
+$("short").onclick=()=>{dir="short";$("short").classList.add("on");$("long").classList.remove("on");calc();};
+calc();
+</script>
+</body>
+</html>

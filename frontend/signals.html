@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合約訊號專區｜OI 異動・資金費率・量價背離數據流｜SLASH RADAR</title>
+<meta name="description" content="即時合約數據訊號流：OI 暴增暴減、量價背離、增倉上行/減倉下行等情境，每條附中立數據解讀。純數據事件紀錄，非投資建議。">
+<meta name="keywords" content="合約訊號,OI訊號,資金費率,量價背離,加密貨幣訊號,持倉異常">
+<link rel="canonical" href="https://radar.slash-invest.com/signals">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="合約訊號專區｜SLASH RADAR">
+<style>
+:root{--bg:#050505;--panel:#0d0c09;--panel2:#141108;--line:rgba(212,175,55,.18);
+  --line2:rgba(255,255,255,.07);--gold:#d4af37;--gold2:#f5c84b;--text:#f5f1e8;
+  --muted:#9b927f;--soft:#6f6759;--green:#16c784;--red:#ea3943;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(212,175,55,.10),transparent 30%),linear-gradient(135deg,#040404,#0a0906 48%,#060606);}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px 60px}
+header{display:flex;align-items:center;gap:22px;padding:16px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;
+  background:linear-gradient(180deg,rgba(5,5,5,.96),rgba(5,5,5,.82));backdrop-filter:blur(8px)}
+.logo{font-weight:800;font-size:19px}.logo b{color:var(--gold2)}
+nav{display:flex;gap:20px;font-size:14px;margin-left:auto}
+nav a{color:var(--muted);text-decoration:none}nav a:hover,nav a.on{color:var(--gold2)}
+h1{font-size:22px;margin:20px 0 4px}.sub{color:var(--soft);font-size:13px;margin-bottom:16px}
+.tabs{display:flex;gap:10px;margin-bottom:18px}
+.tab{padding:8px 15px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);cursor:pointer}
+.tab.on{color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent;font-weight:700}
+.sig{position:relative;border:1px solid var(--line2);border-radius:14px;padding:14px 16px 12px 18px;margin-bottom:12px;overflow:hidden;
+  background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.sig .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.sig.bull .bar{background:linear-gradient(var(--green),#0b7a4f)}.sig.bull{border-color:rgba(22,199,132,.3)}
+.sig.bear .bar{background:linear-gradient(var(--red),#7a1620)}.sig.bear{border-color:rgba(234,57,67,.28)}
+.sig.cand .bar{background:linear-gradient(var(--gold2),var(--gold))}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ty{font-size:11px;font-weight:700;padding:2px 9px;border-radius:6px;background:rgba(212,175,55,.14);color:var(--gold2)}
+.ago{font-size:11.5px;color:var(--soft);margin-left:auto}
+.row{display:flex;align-items:center;gap:9px}
+.row img{width:26px;height:26px;border-radius:50%;background:#222}
+.row .sym{font-weight:800;font-size:17px}
+.ex{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:3px}
+.ex.ok{background:rgba(60,130,255,.18);color:#8ab4ff}.ex.bn{background:rgba(243,186,47,.2);color:#f3ba2f}
+.sc{margin-left:auto;font-size:24px;font-weight:800}
+.up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--gold2)}
+.scen{font-size:12.5px;color:var(--muted);margin:7px 0}
+.exp{font-size:13.5px;line-height:1.6;color:var(--text);background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:9px;padding:10px 12px;margin:4px 0 10px}
+.cta{display:flex;gap:8px}
+.cta a{flex:1;max-width:130px;text-align:center;font-size:12.5px;font-weight:700;text-decoration:none;padding:7px;border-radius:8px;color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.cta a.bn{background:linear-gradient(180deg,#f3ba2f,#d99e0b)}
+.loading{text-align:center;padding:50px;color:var(--muted)}
+.foot{margin-top:24px;padding:14px;border:1px solid var(--line);border-radius:12px;font-size:11.5px;color:var(--soft);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">SLASH <b>RADAR</b></div>
+    <nav><a href="/">市場儀表板</a><a class="on">訊號專區</a><a href="/calculator">倉位計算機</a></nav>
+  </header>
+  <h1>訊號專區</h1>
+  <div class="sub">合約數據達到關注門檻時自動推送的「數據現象」紀錄流（背景每 2 分鐘掃描）。每條為中立數據描述，非操作訊號。</div>
+  <div class="tabs" id="tabs">
+    <div class="tab on" data-t="all">全部</div>
+    <div class="tab" data-t="anomaly">數據異動</div>
+    <div class="tab" data-t="divergence">OI／動能背離</div>
+  </div>
+  <div id="list"><div class="loading">載入訊號中…</div></div>
+  <div class="foot">⚠️ 本頁所有訊號均為對【已發生】合約數據（價格／未平倉／主動買賣量）的統計描述，<b>不構成投資建議或買賣指令</b>。加密合約高風險，請自行評估。數據來源：OKX／幣安公開 API。</div>
+</div>
+<script>
+const REF={okx:"https://www.okx.com/join/VIP20FEE",binance:"https://www.binance.com/register?ref=VIP20FEE"};
+let SIGS=[],CUR="all";
+const $=s=>document.querySelector(s);
+function fmtPx(p){if(p==null)return"–";p=+p;return p>=100?p.toLocaleString(undefined,{maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toPrecision(4);}
+function ago(ts){const s=Date.now()/1000-ts;if(s<60)return"剛剛";if(s<3600)return Math.floor(s/60)+" 分鐘前";if(s<86400)return Math.floor(s/3600)+" 小時前";return Math.floor(s/86400)+" 天前";}
+function sigCard(s){
+  const c=s.score>=20?"bull":s.score<=-20?"bear":"cand";
+  const exch=s.exchanges||[];
+  const exTag=exch.map(e=>`<span class="ex ${e==='幣安'?'bn':'ok'}">${e}</span>`).join("");
+  const ctas=[];
+  if(exch.includes("OKX"))ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
+  if(exch.includes("幣安"))ctas.push(`<a class="bn" href="${REF.binance}" target="_blank" rel="noopener">幣安 ↗</a>`);
+  if(!ctas.length)ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
+  const ty=s.type==="anomaly"?"數據異動":"OI／動能背離";
+  return `<div class="sig ${c}"><span class="bar"></span>
+    <div class="top"><span class="ty">${ty}</span><span class="ago">${ago(s.ts)}</span></div>
+    <div class="row">
+      ${s.image?`<img src="${s.image}" onerror="this.style.visibility='hidden'">`:`<div style="width:26px"></div>`}
+      <span class="sym">${s.symbol}</span><span>${exTag}</span>
+      <span class="sc ${c=='bull'?'up':c=='bear'?'down':'neu'}">${s.score>0?'+':''}${s.score}</span>
+    </div>
+    <div class="scen">${s.scenario}　·　${s.grade}　·　$${fmtPx(s.price)}</div>
+    <div class="exp">${s.explain||""}</div>
+    <div class="cta">${ctas.join("")}</div>
+  </div>`;
+}
+function render(){
+  const list=CUR==="all"?SIGS:SIGS.filter(s=>s.type===CUR);
+  $("#list").innerHTML=list.length?list.map(sigCard).join(""):
+    `<div class="loading">目前尚無此類訊號，背景每 2 分鐘掃描，稍候會自動累積。</div>`;
+}
+async function load(){
+  try{
+    const API=location.protocol.startsWith("http")?"":"http://127.0.0.1:8088";
+    SIGS=await(await fetch(API+"/api/signals")).json();
+    render();
+  }catch(e){$("#list").innerHTML=`<div class="loading">載入失敗：${e}</div>`;}
+}
+$("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CUR=t.dataset.t;render();});
+load();setInterval(load,30000);
+</script>
+</body>
+</html>

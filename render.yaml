@@ -1,0 +1,13 @@
+# Render 一鍵部署藍圖（Blueprint）。在 Render → New → Blueprint，連到本 repo 即可。
+services:
+  - type: web
+    name: slash-radar
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: HOST
+        value: "0.0.0.0"
+      - key: SITE_DOMAIN
+        value: "https://radar.slash-invest.com"

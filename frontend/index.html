@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合約數據雷達 SLASH RADAR｜OKX 幣安雙所 OI 資金費率即時選幣評分</title>
+<meta name="description" content="免費合約數據雷達：聚合 OKX、幣安雙所即時行情、未平倉 OI、資金費率、主動買賣量，算出中立選幣評分、OI 異動排名、板塊輪動。純數據呈現，不薦股、不給買賣建議。">
+<meta name="keywords" content="合約數據,OI異動,未平倉,資金費率,選幣工具,加密貨幣合約,OKX,幣安,CVD,多空比,合約篩選">
+<link rel="canonical" href="https://radar.slash-invest.com/">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://radar.slash-invest.com/">
+<meta property="og:title" content="合約數據雷達 SLASH RADAR">
+<meta property="og:description" content="OKX＋幣安雙所聚合的即時合約數據選幣評分、OI 異動、板塊輪動、中立訊號流。">
+<style>
+:root{
+  --bg:#050505;--panel:#0d0c09;--panel2:#141108;--line:rgba(212,175,55,.18);
+  --line2:rgba(255,255,255,.07);--gold:#d4af37;--gold2:#f5c84b;
+  --text:#f5f1e8;--muted:#9b927f;--soft:#6f6759;
+  --green:#16c784;--green2:#0c2a20;--red:#ea3943;--red2:#2a1012;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  background:radial-gradient(circle at 18% 12%,rgba(212,175,55,.10),transparent 30%),
+    radial-gradient(circle at 82% 4%,rgba(245,200,75,.06),transparent 26%),
+    linear-gradient(135deg,#040404 0%,#0a0906 48%,#060606 100%);}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px 60px}
+header{display:flex;align-items:center;gap:22px;padding:16px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;
+  background:linear-gradient(180deg,rgba(5,5,5,.96),rgba(5,5,5,.82));backdrop-filter:blur(8px)}
+.logo{font-weight:800;letter-spacing:.5px;font-size:19px}
+.logo b{color:var(--gold2)}
+nav{display:flex;gap:20px;font-size:14px;color:var(--muted)}
+nav a{color:var(--muted);text-decoration:none;cursor:pointer}
+nav a.on,nav a:hover{color:var(--gold2)}
+.upd{margin-left:auto;font-size:12px;color:var(--soft)}
+.strip{display:grid;grid-template-columns:200px repeat(3,1fr);gap:14px;margin:20px 0}
+.card{background:linear-gradient(160deg,var(--panel),#0a0805);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.gauge{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge .big{font-size:34px;font-weight:800}
+.kpi .lab{font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px}
+.kpi .val{font-size:26px;font-weight:800}
+.kpi .sub{font-size:12px;color:var(--soft);margin-top:4px}
+.up{color:var(--green)} .down{color:var(--red)} .neu{color:var(--gold2)}
+.bar2{display:flex;align-items:center;gap:14px;margin:6px 0 4px;flex-wrap:wrap}
+.search input{background:#0a0805;border:1px solid var(--line);border-radius:999px;color:var(--text);padding:9px 16px;font-size:14px;font-family:inherit;width:300px;max-width:60vw}
+.search input:focus{outline:none;border-color:var(--gold)}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
+.tab{padding:8px 15px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);cursor:pointer;background:transparent}
+.tab.on{color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.coin{position:relative;border:1px solid var(--line2);border-radius:14px;padding:14px 16px 12px;overflow:hidden;
+  background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.coin .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.coin.bull .bar{background:linear-gradient(var(--green),#0b7a4f)} .coin.bull{border-color:rgba(22,199,132,.35)}
+.coin.bear .bar{background:linear-gradient(var(--red),#7a1620)} .coin.bear{border-color:rgba(234,57,67,.32)}
+.coin.cand .bar{background:linear-gradient(var(--gold2),var(--gold))}
+.crow{display:flex;align-items:center;gap:10px}
+.crow img{width:26px;height:26px;border-radius:50%;background:#222}
+.sym{font-weight:800;font-size:16px}.nm{font-size:11px;color:var(--soft)}
+.px{margin-left:auto;text-align:right}.px .p{font-weight:700;font-size:14px}.px .c{font-size:12px}
+.mid{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
+.score{font-size:30px;font-weight:800;line-height:1}
+.badges{display:flex;flex-direction:column;gap:4px}
+.pill{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(212,175,55,.12);color:var(--gold2);width:fit-content}
+.scen{font-size:12px;color:var(--text);opacity:.9}
+.facs{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.fac{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
+.flags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.flag{font-size:10.5px;color:#ffd9a8;background:rgba(245,140,40,.14);border:1px solid rgba(245,140,40,.3);border-radius:5px;padding:2px 6px}
+.cta{display:flex;align-items:center;gap:8px}
+.cta a{flex:1;text-align:center;font-size:12.5px;font-weight:700;text-decoration:none;padding:7px;border-radius:8px;
+  color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.cta a.bn{background:linear-gradient(180deg,#f3ba2f,#d99e0b)}
+.ex{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.ex.ok{background:rgba(60,130,255,.18);color:#8ab4ff}
+.ex.bn{background:rgba(243,186,47,.2);color:#f3ba2f}
+.disc{font-size:10px;color:var(--soft);margin-top:8px;line-height:1.4}
+.foot{margin-top:30px;padding:16px;border:1px solid var(--line);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.7}
+.loading{text-align:center;padding:60px;color:var(--muted)}
+/* OI 異動雙榜 */
+.oi-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.oi-wrap{grid-template-columns:1fr}.strip{grid-template-columns:1fr 1fr}}
+.oi-col h3{font-size:14px;margin:0 0 12px;padding-left:9px;border-left:3px solid var(--gold)}
+.oi-col.up h3{border-color:var(--green)}.oi-col.down h3{border-color:var(--red)}
+.oi-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line2);border-radius:10px;margin-bottom:7px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.oi-item .r{color:var(--soft);font-size:12px;width:18px;text-align:center}
+.oi-item img{width:22px;height:22px;border-radius:50%;background:#222}
+.oi-item .s{font-weight:700;font-size:14px}
+.oi-item .px2{font-size:12px;color:var(--muted);margin-left:auto;width:90px;text-align:right}
+.oi-item .chg{font-weight:800;width:74px;text-align:right}
+/* 板塊輪動 */
+.sectors{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:12px}
+.sec{border:1px solid var(--line2);border-radius:12px;padding:14px 16px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.sec .nm2{font-weight:700;font-size:15px}.sec .n{font-size:11px;color:var(--soft);margin-left:6px}
+.sec .big2{font-size:23px;font-weight:800;margin:8px 0 2px}
+.sec .meta{font-size:11.5px;color:var(--muted)}
+.sec .bardiv{height:6px;border-radius:3px;background:#1a1408;margin-top:10px;overflow:hidden}
+.sec .barfill{height:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">SLASH <b>RADAR</b>　合約數據雷達</div>
+    <nav>
+      <a class="on" href="/">市場儀表板</a><a href="/signals">訊號專區</a><a href="/calculator">倉位計算機</a><a>學習資源</a>
+    </nav>
+    <div class="upd" id="upd">載入中…</div>
+  </header>
+
+  <div class="strip">
+    <div class="card gauge"><div class="lab" style="font-size:12px;color:var(--muted)">恐懼貪婪指數</div>
+      <div class="big neu" id="fng">–</div><div class="sub" id="fngL" style="color:var(--soft);font-size:12px"></div></div>
+    <div class="card kpi"><div class="lab">偏多方結構</div><div class="val up" id="bullN">–</div><div class="sub">score ≥ +20 的幣數</div></div>
+    <div class="card kpi"><div class="lab">偏空方結構</div><div class="val down" id="bearN">–</div><div class="sub">score ≤ −20 的幣數</div></div>
+    <div class="card kpi"><div class="lab">掃描幣種</div><div class="val neu" id="totN">–</div><div class="sub">OKX＋幣安 USDT 永續</div></div>
+  </div>
+
+  <div class="bar2">
+    <div class="search"><input id="q" placeholder="🔎 搜尋幣種，如 BTC、SOL、PEPE…"></div>
+    <div class="tabs" id="tabs">
+      <div class="tab on" data-g="bullish">偏多方結構</div>
+      <div class="tab" data-g="bearish">偏空方結構</div>
+      <div class="tab" data-g="candidate">分歧 / 候選</div>
+      <div class="tab" data-g="all">全部</div>
+      <div class="tab" data-g="oi">OI 異動排名</div>
+      <div class="tab" data-g="sector">板塊輪動</div>
+    </div>
+  </div>
+
+  <div id="grid" class="grid"><div class="loading">正在拉取 OKX／幣安／CoinGecko 即時數據並計算評分…（約 10–25 秒）</div></div>
+
+  <div class="foot">
+    ⚠️ <b>免責聲明</b>：本站所有評分、情境標籤、OI 排名、板塊輪動與數據解讀，均為對【已發生】合約市場數據（價格、未平倉、資金費率、主動買賣量等）的<b>統計呈現</b>，僅供研究與教育參考，<b>不構成任何投資建議、招攬或買賣指令</b>。加密貨幣合約屬高風險商品，可能損失全部本金，投資前請自行評估並對自身決策負責。數據來源：OKX 公開 API、幣安公開 API、CoinGecko。
+  </div>
+</div>
+
+<script>
+// === slash-invest 交易所返佣連結（單一真相源，改碼只改這裡）===
+const REF = {
+  okx:     "https://www.okx.com/join/VIP20FEE",
+  binance: "https://www.binance.com/register?ref=VIP20FEE",
+  // bybit:  待補連結（碼 SLASHCAPITAL）
+  // bitget: "https://partner.bitget.com/bg/jbsj2anv"（碼 VIP20FEE）
+};
+// === 板塊映射（主流幣，未列入歸「其他」）===
+const SECTORS={
+ BTC:"L1",ETH:"L1",SOL:"L1",BNB:"L1",XRP:"L1",ADA:"L1",AVAX:"L1",SUI:"L1",APT:"L1",SEI:"L1",TON:"L1",NEAR:"L1",TRX:"L1",DOT:"L1",ATOM:"L1",ALGO:"L1",HBAR:"L1",TIA:"L1",INJ:"L1",LTC:"L1",BCH:"L1",
+ ARB:"L2",OP:"L2",MATIC:"L2",STRK:"L2",MANTA:"L2",ZK:"L2",BLAST:"L2",METIS:"L2",IMX:"L2",
+ DOGE:"Meme",SHIB:"Meme",PEPE:"Meme",WIF:"Meme",BONK:"Meme",FLOKI:"Meme",BRETT:"Meme",POPCAT:"Meme",MEW:"Meme",NEIRO:"Meme",TURBO:"Meme",BOME:"Meme",MOG:"Meme",PNUT:"Meme",PEOPLE:"Meme",
+ UNI:"DeFi",AAVE:"DeFi",MKR:"DeFi",LDO:"DeFi",CRV:"DeFi",COMP:"DeFi",SUSHI:"DeFi",CAKE:"DeFi",PENDLE:"DeFi",ENA:"DeFi",JUP:"DeFi",RAY:"DeFi",DYDX:"DeFi",GMX:"DeFi",
+ FET:"AI",RENDER:"AI",TAO:"AI",WLD:"AI",ARKM:"AI",AI16Z:"AI",VIRTUAL:"AI",NMR:"AI",GRASS:"AI",IO:"AI",
+ AXS:"GameFi",SAND:"GameFi",MANA:"GameFi",GALA:"GameFi",APE:"GameFi",PIXEL:"GameFi",BEAM:"GameFi",
+};
+const sectorOf=s=>SECTORS[s]||"其他";
+
+let BOARD=null, CUR="bullish", QUERY="";
+const $=s=>document.querySelector(s);
+function fmtPx(p){ if(p==null)return "–"; p=+p; return p>=100?p.toLocaleString(undefined,{maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toPrecision(4); }
+function cls(s){ return s>=20?"bull":s<=-20?"bear":"cand"; }
+
+function card(x){
+  const c=cls(x.score), sc=(x.score>0?"+":"")+x.score;
+  const chg1=x.chg_1h;
+  const facs=(x.factors||[]).map(f=>`<span class="fac">${f.key} ${f.points>0?"+":""}${f.points}</span>`).join("");
+  const flags=(x.flags||[]).map(f=>`<span class="flag">${f}</span>`).join("");
+  const exch=x.exchanges||[];
+  const exTag=exch.map(e=>`<span class="ex ${e==='幣安'?'bn':'ok'}">${e}</span>`).join("");
+  const ctas=[];
+  if(exch.includes("OKX")) ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
+  if(exch.includes("幣安")) ctas.push(`<a class="bn" href="${REF.binance}" target="_blank" rel="noopener">幣安 ↗</a>`);
+  if(!ctas.length) ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
+  return `<div class="coin ${c}"><span class="bar"></span>
+    <div class="crow">
+      ${x.image?`<img src="${x.image}" onerror="this.style.visibility='hidden'">`:`<div style="width:26px"></div>`}
+      <div><div class="sym">${x.symbol}${exTag}</div><div class="nm">${x.name||""}</div></div>
+      <div class="px"><div class="p">$${fmtPx(x.price)}</div>
+        <div class="c ${chg1>=0?'up':'down'}">1h ${chg1>=0?"+":""}${chg1??"–"}%</div></div>
+    </div>
+    <div class="mid">
+      <div class="score ${c=='bull'?'up':c=='bear'?'down':'neu'}">${sc}</div>
+      <div class="badges"><span class="pill">${x.grade}</span><span class="scen">${x.scenario}</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${x.bias}</div>
+    <div class="facs">${facs}</div>
+    ${flags?`<div class="flags">${flags}</div>`:""}
+    <div class="cta">${ctas.join("")}</div>
+    <div class="disc">${x.disclaimer}</div>
+  </div>`;
+}
+
+function renderOI(){
+  const wi=BOARD.coins.filter(c=>c.oi_chg!=null);
+  const up=[...wi].filter(c=>c.oi_chg>0).sort((a,b)=>b.oi_chg-a.oi_chg).slice(0,15);
+  const dn=[...wi].filter(c=>c.oi_chg<0).sort((a,b)=>a.oi_chg-b.oi_chg).slice(0,15);
+  const item=(c,i)=>`<div class="oi-item"><span class="r">${i+1}</span>
+    ${c.image?`<img src="${c.image}" onerror="this.style.visibility='hidden'">`:`<div style="width:22px"></div>`}
+    <span class="s">${c.symbol}</span>
+    <span class="px2">$${fmtPx(c.price)}</span>
+    <span class="chg ${c.oi_chg>=0?'up':'down'}">${c.oi_chg>=0?'+':''}${c.oi_chg}%</span></div>`;
+  return `<div class="oi-wrap">
+    <div class="oi-col up"><h3>OI 增倉榜（1h，資金進場）</h3>${up.map(item).join('')||'<div class=loading>暫無</div>'}</div>
+    <div class="oi-col down"><h3>OI 減倉榜（1h，資金離場）</h3>${dn.map(item).join('')||'<div class=loading>暫無</div>'}</div>
+  </div>`;
+}
+
+function renderSectors(){
+  const map={};
+  BOARD.coins.forEach(c=>{const s=sectorOf(c.symbol);(map[s]=map[s]||[]).push(c);});
+  const rows=Object.entries(map).map(([nm,arr])=>({
+    nm, n:arr.length,
+    avg:arr.reduce((s,c)=>s+(c.chg_24h||0),0)/arr.length,
+    avgScore:arr.reduce((s,c)=>s+c.score,0)/arr.length,
+  })).sort((a,b)=>b.avg-a.avg);
+  return `<div class="sectors">`+rows.map(r=>{
+    const col=r.avg>=0?'var(--green)':'var(--red)';
+    const w=Math.min(100,Math.abs(r.avg)*8);
+    return `<div class="sec"><div><span class="nm2">${r.nm}</span><span class="n">${r.n} 幣</span></div>
+      <div class="big2" style="color:${col}">${r.avg>=0?'+':''}${r.avg.toFixed(2)}%</div>
+      <div class="meta">平均評分 ${r.avgScore>=0?'+':''}${r.avgScore.toFixed(0)}　·　24h 板塊均漲跌</div>
+      <div class="bardiv"><div class="barfill" style="width:${w}%;background:${col}"></div></div></div>`;
+  }).join('')+`</div>`;
+}
+
+function render(){
+  if(!BOARD)return;
+  const g=$("#grid");
+  if(QUERY){
+    const list=BOARD.coins.filter(c=>c.symbol.toLowerCase().includes(QUERY)||((c.name||'').toLowerCase().includes(QUERY)));
+    g.className="grid";
+    g.innerHTML=list.length?list.map(card).join(""):`<div class="loading">查無「${QUERY}」相關幣種。</div>`;
+    return;
+  }
+  if(CUR==="oi"){ g.className=""; g.innerHTML=renderOI(); return; }
+  if(CUR==="sector"){ g.className=""; g.innerHTML=renderSectors(); return; }
+  const list = CUR==="all" ? [...BOARD.coins].sort((a,b)=>b.score-a.score).slice(0,80) : (BOARD.groups[CUR]||[]);
+  g.className="grid";
+  g.innerHTML = list.length? list.map(card).join("") : `<div class="loading">此分類目前沒有達標的幣種，可切換「全部」。</div>`;
+}
+
+async function load(){
+  try{
+    const API=location.protocol.startsWith("http")?"":"http://127.0.0.1:8088";
+    const r=await fetch(API+"/api/board"); BOARD=await r.json();
+    const m=BOARD.market, fng=m.fear_greed||{};
+    $("#fng").textContent=fng.value??"–"; $("#fngL").textContent=fng.label||"";
+    $("#bullN").textContent=m.bull_n; $("#bearN").textContent=m.bear_n; $("#totN").textContent=m.total_coins;
+    const d=new Date(BOARD.updated*1000);
+    $("#upd").textContent="更新："+d.toLocaleTimeString("zh-TW");
+    render();
+  }catch(e){ $("#grid").innerHTML=`<div class="loading">載入失敗：${e}</div>`; }
+}
+$("#tabs").addEventListener("click",e=>{
+  const t=e.target.closest(".tab"); if(!t)return;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on"); CUR=t.dataset.g; QUERY=""; $("#q").value=""; render();
+});
+$("#q").addEventListener("input",e=>{ QUERY=e.target.value.trim().toLowerCase(); render(); });
+load(); setInterval(load, 60000);
+</script>
+</body>
+</html>
