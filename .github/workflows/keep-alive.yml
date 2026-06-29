@@ -1,0 +1,32 @@
+# 每 5 分鐘戳一次 radar.slash-invest.com，避免 Render 免費版閒置 15 分鐘自動休眠。
+# 由 GitHub 雲端執行，與本機電腦開不開無關。
+# 想手動測試：到 repo 的 Actions 分頁 → 選此 workflow → Run workflow。
+name: keep-render-awake
+
+on:
+  schedule:
+    # 每 5 分鐘一次。GitHub 高負載時段可能延後幾分鐘，但通常仍 < 15 分鐘，足以保活。
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+# 同一時間只跑一個，避免塞車排隊
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping radar
+        run: |
+          url="https://radar.slash-invest.com"
+          code=$(curl -sS -m 60 -A "github-actions-keepalive" -o /dev/null -w "%{http_code}" "$url" || echo "000")
+          echo "[$(date -u '+%Y-%m-%d %H:%M:%S')Z] $url -> HTTP $code"
+          if [ "$code" = "200" ]; then
+            echo "✅ 服務醒著"
+          else
+            # 非 200 只警告、不讓 job 失敗，避免冷啟動瞬間誤報
+            echo "::warning::回應 $code（可能正在冷啟動或服務異常，下次排程會再戳）"
+          fi
