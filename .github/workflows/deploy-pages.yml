@@ -32,6 +32,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: 還原走勢歷史（跨次累積給 sparkline）
+        uses: actions/cache@v4
+        with:
+          path: .history
+          key: radar-history-${{ github.run_id }}
+          restore-keys: radar-history-
       - name: 安裝相依
         run: pip install --no-cache-dir "requests>=2.28"
       - name: 算快照（整盤 enrich + 評分 + 訊號 + 注入著陸頁樣本）

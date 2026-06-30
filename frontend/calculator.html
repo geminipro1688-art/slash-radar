@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d0c09">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="static/icon-180.png">
 <title>合約倉位計算機｜風險反推槓桿・爆倉價・強平緩衝｜SLASH RADAR</title>
 <meta name="description" content="免費合約倉位計算機：先設能虧多少，反推部位大小、所需保證金、建議槓桿與爆倉價，並警示止損與強平的緩衝距離。做多做空通用。">
 <meta name="keywords" content="倉位計算機,合約計算機,爆倉價,槓桿計算,止損,強平,保證金,部位大小">
@@ -149,5 +152,6 @@ $("long").onclick=()=>{dir="long";$("long").classList.add("on");$("short").class
 $("short").onclick=()=>{dir="short";$("short").classList.add("on");$("long").classList.remove("on");calc();};
 calc();
 </script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});</script>
 </body>
 </html>

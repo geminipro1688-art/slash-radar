@@ -19,17 +19,17 @@ async function _sha256(t) {
 async function slashLogin(user, pass) {
   const h = await _sha256(`${(user || "").trim()}:${pass || ""}`);
   if (ACCOUNTS.includes(h)) {
-    sessionStorage.setItem("slash_auth", "1");
-    sessionStorage.setItem("slash_user", (user || "").trim());
+    localStorage.setItem("slash_auth", "1");
+    localStorage.setItem("slash_user", (user || "").trim());
     return true;
   }
   return false;
 }
-function slashAuthed() { return sessionStorage.getItem("slash_auth") === "1"; }
-function slashUser() { return sessionStorage.getItem("slash_user") || ""; }
+function slashAuthed() { return localStorage.getItem("slash_auth") === "1"; }
+function slashUser() { return localStorage.getItem("slash_user") || ""; }
 function slashLogout() {
-  sessionStorage.removeItem("slash_auth");
-  sessionStorage.removeItem("slash_user");
+  localStorage.removeItem("slash_auth");
+  localStorage.removeItem("slash_user");
   location.href = "index.html";
 }
 /* 在「需登入」頁面最上面呼叫：未登入就踢回著陸頁，並記住目的頁。 */

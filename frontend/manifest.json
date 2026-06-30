@@ -1,0 +1,16 @@
+{
+  "name": "SLASH RADAR 合約數據雷達",
+  "short_name": "SLASH RADAR",
+  "description": "OKX 合約數據中立雷達：OI、資金費率、CVD、多空比，一眼看懂多空結構。純數據、不給買賣建議。",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050505",
+  "theme_color": "#0d0c09",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

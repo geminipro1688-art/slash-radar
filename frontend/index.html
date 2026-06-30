@@ -12,6 +12,13 @@
 <meta property="og:url" content="https://radar.slash-invest.com/">
 <meta property="og:title" content="合約數據雷達 SLASH RADAR｜雙所中立選幣評分">
 <meta property="og:description" content="OKX＋幣安雙所聚合的即時合約數據選幣評分、OI 異動、板塊輪動、中立訊號流。純數據、不給買賣建議。">
+<meta property="og:image" content="https://geminipro1688-art.github.io/slash-radar/static/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="合約數據雷達 SLASH RADAR">
+<meta name="twitter:image" content="https://geminipro1688-art.github.io/slash-radar/static/og.png">
+<meta name="theme-color" content="#0d0c09">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="static/icon-180.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"什麼是合約數據雷達？","acceptedAnswer":{"@type":"Answer","text":"它聚合 OKX、幣安兩大交易所的永續合約公開數據——價格動能、未平倉量 OI、資金費率、主動買賣量 CVD、多空比——把每個幣的合約盤面編碼成一個中立的『數據結構強度評分』與情境標籤（增倉上行、減倉下行、下方吸籌等），協助快速看懂市場結構。它只呈現已發生的數據，不提供買賣建議。"}},
@@ -113,7 +120,7 @@ nav a:hover{color:var(--gold2)}
     <div class="lead">下方為公開樣本（每約 15 分鐘更新）。完整 400+ 幣評分、OI 異動雙榜、板塊輪動、訊號流在登入後。</div>
     <div class="snapshot" id="snapshot">
       <!--SNAPSHOT_START-->
-<p class="snapshot-meta">最近更新 2026-06-30 10:25 UTC　·　掃描 229 幣　·　偏多 6／偏空 9　·　恐懼貪婪 15</p><table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody><tr><td class="s">CAP</td><td>其他</td><td class="up">+44</td><td>增倉上行</td><td class="up">偏多方</td></tr><tr><td class="s">CC</td><td>其他</td><td class="down">-37</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">KGEN</td><td>其他</td><td class="down">-37</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">ORDI</td><td>其他</td><td class="down">-33</td><td>減倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">RAVE</td><td>其他</td><td class="down">-32</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">SKY</td><td>其他</td><td class="up">+27</td><td>減倉反彈</td><td class="up">偏多方</td></tr><tr><td class="s">UB</td><td>其他</td><td class="up">+26</td><td>動能衰減（價漲量縮）</td><td class="up">偏多方</td></tr><tr><td class="s">PI</td><td>其他</td><td class="down">-25</td><td>減倉下行</td><td class="down">偏空方</td></tr></tbody></table>
+<p class="snapshot-meta">最近更新 2026-06-30 16:06 UTC　·　掃描 229 幣　·　偏多 10／偏空 5　·　恐懼貪婪 15</p><table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody><tr><td class="s">DYDX</td><td>DeFi</td><td class="up">+54</td><td>增倉上行</td><td class="up">強烈偏多方</td></tr><tr><td class="s">USELESS</td><td>其他</td><td class="up">+48</td><td>增倉上行</td><td class="up">偏多方</td></tr><tr><td class="s">CAP</td><td>其他</td><td class="up">+44</td><td>減倉反彈</td><td class="up">偏多方</td></tr><tr><td class="s">LIT</td><td>其他</td><td class="up">+42</td><td>增倉上行</td><td class="up">偏多方</td></tr><tr><td class="s">GLM</td><td>其他</td><td class="up">+38</td><td>動能衰減（價漲量縮）</td><td class="up">偏多方</td></tr><tr><td class="s">UB</td><td>其他</td><td class="down">-36</td><td>減倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">H</td><td>其他</td><td class="up">+30</td><td>增倉上行</td><td class="up">偏多方</td></tr><tr><td class="s">FARTCOIN</td><td>其他</td><td class="up">+29</td><td>增倉上行</td><td class="up">偏多方</td></tr></tbody></table>
 <!--SNAPSHOT_END-->
     </div>
     <p class="locknote">想看全部 400+ 幣的評分、情境與一鍵下單？<a href="#login">登入解鎖完整雷達 →</a></p>
@@ -209,5 +216,6 @@ async function doLogin(){
   }catch(e){ /* 靜默：登入後看完整 */ }
 })();
 </script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});</script>
 </body>
 </html>

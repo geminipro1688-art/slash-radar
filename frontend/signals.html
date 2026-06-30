@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0d0c09">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="static/icon-180.png">
 <title>合約訊號專區｜OI 異動・資金費率・量價背離數據流｜SLASH RADAR</title>
 <meta name="description" content="即時合約數據訊號流：OI 暴增暴減、量價背離、增倉上行/減倉下行等情境，每條附中立數據解讀。純數據事件紀錄，非投資建議。">
 <meta name="keywords" content="合約訊號,OI訊號,資金費率,量價背離,加密貨幣訊號,持倉異常">
@@ -111,5 +114,6 @@ $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)r
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CUR=t.dataset.t;render();});
 load();setInterval(load,30000);
 </script>
+<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("service-worker.js").catch(()=>{});</script>
 </body>
 </html>

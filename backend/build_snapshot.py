@@ -22,6 +22,28 @@ import scoring, signals  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONT = os.path.join(ROOT, "frontend")
 DATA = os.path.join(FRONT, "data")
+HIST = os.path.join(ROOT, ".history", "history.json")   # 由 GitHub Actions cache 跨次保存（不進 repo）
+HIST_MAX = 24                                            # 最多留 24 點（每 15 分 ≈ 6 小時走勢）
+
+
+def _attach_history(board):
+    """累積每幣的分數/OI 走勢，並把最近數點嵌進 board.json 給前端畫 sparkline。"""
+    try:
+        hist = json.load(open(HIST, encoding="utf-8"))
+    except Exception:
+        hist = {}
+    ts = board.get("updated", int(time.time()))
+    for c in board.get("coins", []):
+        h = hist.get(c["symbol"], [])
+        if not h or h[-1][0] != ts:
+            h.append([ts, c.get("score", 0), c.get("oi_chg")])
+        hist[c["symbol"]] = h[-HIST_MAX:]
+        c["hist"] = [p[1] for p in hist[c["symbol"]][-12:]]   # 最近 12 點分數
+    try:
+        os.makedirs(os.path.dirname(HIST), exist_ok=True)
+        json.dump(hist, open(HIST, "w", encoding="utf-8"))
+    except Exception as e:
+        print(f"[snapshot] history save skipped: {e}")
 
 
 def _build_with_retry():
@@ -114,6 +136,7 @@ def main():
             sys.exit(1)   # 連種子都沒有才算硬失敗
         return
     _attach_explain(board)
+    _attach_history(board)
     json.dump(board, open(bpath, "w", encoding="utf-8"), ensure_ascii=False)
     m = board["market"]
     print(f"[snapshot] board.json OK: {len(board['coins'])} coins | "
