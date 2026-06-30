@@ -35,6 +35,17 @@ nav a.on,nav a:hover{color:var(--gold2)}
 .kpi .val{font-size:23px;font-weight:800}
 .kpi .sub{font-size:11px;color:var(--soft);margin-top:3px}
 .up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--gold2)}
+/* 大盤多空溫度計 */
+.tempbar{background:linear-gradient(160deg,var(--panel),#0a0805);border:1px solid var(--line);border-radius:14px;padding:15px 20px;margin:20px 0 0}
+.tb-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.tb-t{font-size:13px;color:var(--muted);letter-spacing:.5px}
+.tb-v{font-size:22px;font-weight:800;margin-left:auto}
+.tb-sub{font-size:11.5px;color:var(--soft);margin-top:2px}
+/* 排序 / 篩選列 */
+.bar3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 0}
+.bar3 .lab{font-size:12px;color:var(--soft)}
+.bar3 select{background:#0a0805;border:1px solid var(--line);border-radius:8px;color:var(--text);padding:7px 11px;font-size:13px;font-family:inherit;cursor:pointer}
+.bar3 select:focus{outline:none;border-color:var(--gold)}
 .bar2{display:flex;align-items:center;gap:14px;margin:6px 0 4px;flex-wrap:wrap}
 .search input{background:#0a0805;border:1px solid var(--line);border-radius:999px;color:var(--text);padding:9px 16px;font-size:14px;font-family:inherit;width:300px;max-width:60vw}
 .search input:focus{outline:none;border-color:var(--gold)}
@@ -127,6 +138,8 @@ nav a.on,nav a:hover{color:var(--gold2)}
     <div class="who"><span id="upd">載入中…</span><span id="me"></span><a href="javascript:slashLogout()">登出</a></div>
   </header>
 
+  <div class="tempbar" id="tempbar"></div>
+
   <div class="strip">
     <div class="card gauge"><div class="lab" style="font-size:11.5px;color:var(--muted)">恐懼貪婪指數</div>
       <div class="big neu" id="fng">–</div><div class="sub" id="fngL" style="color:var(--soft);font-size:11px"></div></div>
@@ -149,6 +162,20 @@ nav a.on,nav a:hover{color:var(--gold2)}
     </div>
   </div>
 
+  <div class="bar3" id="bar3">
+    <span class="lab">排序</span>
+    <select id="sort">
+      <option value="score">數據評分（高→低）</option>
+      <option value="score_asc">數據評分（低→高）</option>
+      <option value="oi">OI 1h 變化</option>
+      <option value="fund">資金費率</option>
+      <option value="mom">1h 動能</option>
+      <option value="vol">24h 成交額</option>
+    </select>
+    <span class="lab">板塊</span>
+    <select id="sect"><option value="all">全部板塊</option></select>
+  </div>
+
   <div id="grid" class="grid"><div class="loading">正在載入雷達快照…</div></div>
 
   <div class="foot">
@@ -163,7 +190,7 @@ nav a.on,nav a:hover{color:var(--gold2)}
 slashRequire();   // 未登入 → 踢回著陸頁
 
 const REF={okx:"https://www.okx.com/join/VIP20FEE",binance:"https://www.binance.com/register?ref=VIP20FEE"};
-let BOARD=null, CUR="bullish", QUERY="", BYSYM={};
+let BOARD=null, CUR="bullish", QUERY="", BYSYM={}, SORT="score", SECT="all";
 const $=s=>document.querySelector(s);
 function fmtPx(p){if(p==null)return"–";p=+p;return p>=100?p.toLocaleString(undefined,{maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toPrecision(4);}
 function fmtBig(n){if(!n)return"–";const a=Math.abs(n);if(a>=1e9)return(n/1e9).toFixed(2)+"B";if(a>=1e6)return(n/1e6).toFixed(1)+"M";return n.toLocaleString();}
@@ -303,18 +330,39 @@ function renderSectors(){
       <div class="bardiv"><div class="barfill" style="width:${w}%;background:${col}"></div></div></div>`;
   }).join('')+`</div>`;
 }
+function renderTemp(){
+  if(!BOARD)return;
+  const core=[...(BOARD.groups.bullish||[]),...(BOARD.groups.bearish||[]),...(BOARD.groups.candidate||[])];
+  const cs=core.map(c=>c.score);
+  const temp=cs.length?Math.round(cs.reduce((a,b)=>a+b,0)/cs.length):0;
+  const li=levelInfo(temp), m=BOARD.market, fng=m.fear_greed||{};
+  $("#tempbar").innerHTML=`<div class="tb-head"><span class="tb-t">全市場多空溫度</span>
+    <span class="tb-v ${li.c}">${temp>0?'+':''}${temp}　${li.l}</span></div>
+    ${gauge(temp)}
+    <div class="tb-sub">偏多 ${m.bull_n}　·　偏空 ${m.bear_n}　·　多空廣度 ${m.breadth}%　·　山寨季 ${m.altseason}%　·　恐懼貪婪 ${fng.value??'–'}（${fng.label||''}）</div>`;
+}
+function applyView(list){
+  const l=(SECT==="all")?list:list.filter(c=>(c.sector||"其他")===SECT);
+  const S={score:(a,b)=>b.score-a.score, score_asc:(a,b)=>a.score-b.score,
+    oi:(a,b)=>(b.oi_chg??-1e9)-(a.oi_chg??-1e9), fund:(a,b)=>(b.funding??-1e9)-(a.funding??-1e9),
+    mom:(a,b)=>(b.chg_1h??-1e9)-(a.chg_1h??-1e9), vol:(a,b)=>(b.vol_usdt_24h||0)-(a.vol_usdt_24h||0)};
+  return [...l].sort(S[SORT]||S.score);
+}
 function render(){
   if(!BOARD||!Array.isArray(BOARD.coins))return;
-  const g=$("#grid");
+  const g=$("#grid"), bar3=$("#bar3");
+  const isCards=QUERY||(CUR!=="oi"&&CUR!=="sector");
+  if(bar3) bar3.style.display=isCards?"flex":"none";
   if(QUERY){
-    const list=BOARD.coins.filter(c=>c.symbol.toLowerCase().includes(QUERY)||((c.name||'').toLowerCase().includes(QUERY)));
+    const list=applyView(BOARD.coins.filter(c=>c.symbol.toLowerCase().includes(QUERY)||((c.name||'').toLowerCase().includes(QUERY))));
     g.className="grid";g.innerHTML=list.length?list.map(card).join(""):`<div class="loading">查無「${QUERY}」相關幣種。</div>`;return;
   }
   if(CUR==="oi"){g.className="";g.innerHTML=renderOI();return;}
   if(CUR==="sector"){g.className="";g.innerHTML=renderSectors();return;}
-  const list=CUR==="all"?[...BOARD.coins].sort((a,b)=>b.score-a.score).slice(0,120):((BOARD.groups&&BOARD.groups[CUR])||[]);
+  let list=applyView(CUR==="all"?BOARD.coins:((BOARD.groups&&BOARD.groups[CUR])||[]));
+  if(CUR==="all") list=list.slice(0,120);
   g.className="grid";
-  g.innerHTML=list.length?list.map(card).join(""):`<div class="loading">此分類目前沒有達標的幣種，可切換「全部」。</div>`;
+  g.innerHTML=list.length?list.map(card).join(""):`<div class="loading">此分類沒有符合條件的幣種，可調整篩選或切換「全部」。</div>`;
 }
 async function load(){
   const g=$("#grid");
@@ -333,12 +381,21 @@ async function load(){
     af.className="val "+(m.avg_funding>0?"down":m.avg_funding<0?"up":"neu");
     const src=(m.sources||[]).join("·");
     $("#upd").textContent="更新 "+new Date((BOARD.updated||0)*1000).toLocaleTimeString("zh-TW")+(src?"　來源 "+src:"");
+    // 動態板塊下拉（依實際資料，保留目前選擇）
+    const sc={}; data.coins.forEach(c=>{const s=c.sector||"其他";sc[s]=(sc[s]||0)+1;});
+    const sel=$("#sect");
+    sel.innerHTML='<option value="all">全部板塊</option>'+Object.entries(sc).sort((a,b)=>b[1]-a[1])
+      .map(([s,n])=>`<option value="${s}">${s}（${n}）</option>`).join("");
+    sel.value=SECT;
+    renderTemp();
     render();
   }catch(e){ if(!BOARD)g.innerHTML=`<div class="loading">快照載入失敗：${e.message||e}<br><span style="font-size:12px">5 分鐘後自動重試。</span></div>`; }
 }
 $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CUR=t.dataset.g;QUERY="";$("#q").value="";render();});
 $("#q").addEventListener("input",e=>{QUERY=e.target.value.trim().toLowerCase();render();});
+$("#sort").addEventListener("change",e=>{SORT=e.target.value;render();});
+$("#sect").addEventListener("change",e=>{SECT=e.target.value;render();});
 $("#me").textContent=slashUser()?("· "+slashUser()):"";
 load();setInterval(load,300000);
 </script>
