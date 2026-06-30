@@ -2,5 +2,7 @@ __pycache__/
 *.pyc
 .DS_Store
 data/signals_log.json
+data/sample_board.json
 demo-shots/
 scratchpad/
+# frontend/data/board.json、signals.json 是「種子快照」要 commit；Actions 每次在 runner 重算覆蓋，不回寫 repo。

@@ -6,8 +6,7 @@
 <title>合約訊號專區｜OI 異動・資金費率・量價背離數據流｜SLASH RADAR</title>
 <meta name="description" content="即時合約數據訊號流：OI 暴增暴減、量價背離、增倉上行/減倉下行等情境，每條附中立數據解讀。純數據事件紀錄，非投資建議。">
 <meta name="keywords" content="合約訊號,OI訊號,資金費率,量價背離,加密貨幣訊號,持倉異常">
-<link rel="canonical" href="https://radar.slash-invest.com/signals">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="noindex">
 <meta property="og:type" content="website">
 <meta property="og:title" content="合約訊號專區｜SLASH RADAR">
 <style>
@@ -56,7 +55,7 @@ h1{font-size:22px;margin:20px 0 4px}.sub{color:var(--soft);font-size:13px;margin
 <div class="wrap">
   <header>
     <div class="logo">SLASH <b>RADAR</b></div>
-    <nav><a href="/">市場儀表板</a><a class="on">訊號專區</a><a href="/calculator">倉位計算機</a></nav>
+    <nav><a href="app.html">市場儀表板</a><a class="on">訊號專區</a><a href="calculator.html">倉位計算機</a><a href="learning.html">學習資源</a><a href="javascript:slashLogout()" style="margin-left:auto;color:var(--soft)">登出</a></nav>
   </header>
   <h1>訊號專區</h1>
   <div class="sub">合約數據達到關注門檻時自動推送的「數據現象」紀錄流（背景每 2 分鐘掃描）。每條為中立數據描述，非操作訊號。</div>
@@ -68,7 +67,9 @@ h1{font-size:22px;margin:20px 0 4px}.sub{color:var(--soft);font-size:13px;margin
   <div id="list"><div class="loading">載入訊號中…</div></div>
   <div class="foot">⚠️ 本頁所有訊號均為對【已發生】合約數據（價格／未平倉／主動買賣量）的統計描述，<b>不構成投資建議或買賣指令</b>。加密合約高風險，請自行評估。數據來源：OKX／幣安公開 API。</div>
 </div>
+<script src="static/auth.js"></script>
 <script>
+slashRequire();   // 未登入 → 踢回著陸頁
 const REF={okx:"https://www.okx.com/join/VIP20FEE",binance:"https://www.binance.com/register?ref=VIP20FEE"};
 let SIGS=[],CUR="all";
 const $=s=>document.querySelector(s);
@@ -102,10 +103,9 @@ function render(){
 }
 async function load(){
   try{
-    const API=location.protocol.startsWith("http")?"":"http://127.0.0.1:8088";
-    SIGS=await(await fetch(API+"/api/signals")).json();
+    SIGS=await(await fetch("data/signals.json?t="+Date.now())).json();
     render();
-  }catch(e){$("#list").innerHTML=`<div class="loading">載入失敗：${e}</div>`;}
+  }catch(e){$("#list").innerHTML=`<div class="loading">尚無訊號快照，背景每約 15 分鐘更新一次。</div>`;}
 }
 $("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(!t)return;
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");CUR=t.dataset.t;render();});

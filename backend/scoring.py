@@ -14,6 +14,11 @@ slash-radar 評分引擎（中立合規版）
 這正是我們相對競品的差異化：用合規的「中立數據呈現」吃它的 SEO 空門。
 """
 import time
+from concurrent.futures import ThreadPoolExecutor
+try:
+    from . import sectors as SEC
+except ImportError:
+    import sectors as SEC
 
 # ---- 可調權重 ----
 W_OI = 30      # OI×價 結構（最重）
@@ -28,13 +33,14 @@ def _clamp(x, lo, hi):
 
 def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
     """
-    c: {symbol, price, chg_1h, chg_24h, oi_usd, market_cap, vol_usdt_24h}
+    c: {symbol, price, chg_1h, chg_24h, oi_usd, market_cap, vol_usdt_24h, sector, exchanges}
     oi_chg/funding/lsr/cvd: enrich 後的補充數據（可為 None）
     回傳：中立評分卡 dict
     """
     score = 0.0
     factors = []   # 每個維度的貢獻（透明可解釋）
     flags = []     # 風險/結構標籤
+    dq = []        # 資料完整度：實際有哪幾個維度的合約數據（透明，差異化）
 
     pc1 = c.get("chg_1h") or 0.0
     pc24 = c.get("chg_24h") or 0.0
@@ -46,6 +52,8 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
     mom = _clamp(pc1 * (W_MOM / 5.0), -W_MOM, W_MOM)
     score += mom
     factors.append({"key": "動能", "detail": f"1h {pc1:+.2f}%", "points": round(mom, 1)})
+    if c.get("chg_1h") is not None:
+        dq.append("動能")
 
     # 2) OI × 價 結構（需 oi_chg）
     scenario = "動能上行" if pc1 >= 0 else "動能下行"
@@ -63,6 +71,7 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
         factors.append({"key": "OI 結構",
                         "detail": f"OI 1h {oi_chg:+.2f}%（{scenario}）",
                         "points": round(s, 1)})
+        dq.append("OI")
 
     # 3) 資金費率：負費率（空頭擁擠）偏多分、正費率（多頭擁擠）偏空分
     if funding is not None:
@@ -71,6 +80,7 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
         factors.append({"key": "資金費率", "detail": f"{funding:+.4f}%", "points": round(fs, 1)})
         if abs(funding) >= 1.0:
             flags.append("費率背離")
+        dq.append("費率")
 
     # 4) 主動買賣量差（CVD 代理）
     if cvd is not None:
@@ -83,6 +93,7 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
             scenario = "動能衰減（價漲量縮）"
         elif pc1 < 0 and cvd > 0:
             scenario = "下方吸籌（價跌買增）"
+        dq.append("CVD")
 
     # 5) 多空比：極端 → 反向小幅修正
     if lsr is not None:
@@ -90,6 +101,7 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
             score -= W_LSR; flags.append("多方擁擠")
         elif lsr <= 0.6:
             score += W_LSR; flags.append("空方擁擠")
+        dq.append("多空比")
 
     # 6) 槓桿擁擠（OI/市值比）→ 純風險標籤，不計分方向
     oi_mcap = (oi_usd / mcap) if mcap else 0.0
@@ -115,33 +127,37 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
 
     return {
         "symbol": c.get("symbol"), "name": c.get("name"), "exchanges": c.get("exchanges", []),
+        "sector": c.get("sector") or SEC.sector_of(c.get("symbol")),
         "image": c.get("image"), "price": c.get("price") or c.get("last"),
         "chg_1h": round(pc1, 2), "chg_24h": round(pc24, 2),
         "score": score, "grade": grade, "scenario": scenario,
-        "bias": bias, "factors": factors, "flags": flags,
+        "bias": bias, "factors": factors, "flags": flags, "data_quality": dq,
         "oi_usd": round(oi_usd), "oi_chg": (round(oi_chg, 2) if oi_chg is not None else None),
         "oi_mcap_ratio": round(oi_mcap, 4),
         "vol_usdt_24h": round(vol), "disclaimer": DISCLAIMER,
     }
 
 
-def build_board(enrich_top=12, min_vol=2e6):
+def build_board(enrich_top=30, min_vol=2e6, lsr_top=30):
     """
-    組裝整個選幣榜：批量數據 → 初評 → 對 top 異動幣 enrich 合約數據 → 重評 → 分組。
+    組裝整個選幣榜：批量數據 → 初評 → 對 top 異動幣【並行】enrich 合約數據 → 重評 → 分組。
     回傳 {updated, market, coins, groups}
+    enrich_top 提高（離線快照可設 80+）→ 更多幣有真實 OI 結構，準度與完整度都提升。
     """
     try:
         from . import sources as S  # 套件內相對匯入
     except ImportError:
         import sources as S         # 直接執行時
+
     def _safe(fn, default):                # 任一上游失敗（限速/被擋/逾時）都不該拖垮整個看板
         try:
             return fn()
         except Exception:
             return default
+
     okx_t = _safe(S.okx_tickers, {}); okx_oi_map = _safe(S.okx_oi, {})
     bn_t = _safe(S.binance_tickers, {}); bn_fund = _safe(S.binance_funding_all, {})
-    g = _safe(lambda: S.gecko_markets(pages=1), {})
+    g = _safe(lambda: S.gecko_markets(pages=2), {})   # 2 頁≈500 幣，名稱/logo/市值/1h 覆蓋更廣
 
     base = []
     for sym in (set(okx_t) | set(bn_t)):
@@ -158,40 +174,73 @@ def build_board(enrich_top=12, min_vol=2e6):
             "chg_1h": gk.get("chg_1h_pct"), "chg_24h": ref["chg_24h_pct"],
             "oi_usd": okx_oi_map.get(sym) or 0.0,        # 幣安 OI 於 enrich 階段加總
             "market_cap": gk.get("market_cap"), "vol_usdt_24h": vol,
-            "exchanges": exch, "funding": bn_fund.get(sym),   # 幣安批量費率（全幣即時可得）
+            "exchanges": exch, "sector": SEC.sector_of(sym),
+            "funding": bn_fund.get(sym),                  # 幣安批量費率（全幣即時可得）
         }
         base.append((c, score_coin(c, funding=c["funding"])))
 
-    # 依「初評強度 + 24h 異動」挑 top 去 enrich（補兩所 OI 變化 / CVD）
+    # 依「初評強度 + 24h 異動」挑 top 去 enrich（補兩所 OI 變化 / CVD / 多空比）
     base.sort(key=lambda x: (abs(x[1]["score"]), abs(x[0].get("chg_24h") or 0)), reverse=True)
-    core, rest = [], []
-    for i, (c, _) in enumerate(base):
-        if i < enrich_top:
-            sym = c["symbol"]
-            oi_chg = S.okx_oi_history(sym); time.sleep(0.08)
-            bn_oi_usd, oi_chg_bn = S.binance_oi(sym); time.sleep(0.08)
-            if oi_chg_bn is not None:                  # 幣安 OI 為 USD 計價，優先採用
-                oi_chg = oi_chg_bn
-            if bn_oi_usd:
-                c["oi_usd"] = (c["oi_usd"] or 0.0) + bn_oi_usd   # 聚合兩所 OI
-            cvd = S.okx_taker_cvd(sym); time.sleep(0.08)
-            lsr = None
-            if i < 14:                                  # 核心幣再補多空比
-                lsr = S.okx_lsr(sym); time.sleep(0.08)
-            core.append(score_coin(c, oi_chg=oi_chg, funding=c["funding"], lsr=lsr, cvd=cvd))
-        else:
-            rest.append(score_coin(c, funding=c["funding"]))
+    head = base[:enrich_top]
+    tail = base[enrich_top:]
+
+    def _enrich(idx_c):
+        i, (c, _) = idx_c
+        sym = c["symbol"]
+        on_okx = "OKX" in c["exchanges"]
+        # OI 1h + USD：幣安(USD 計價乾淨)優先，缺值再退 OKX rubik
+        bn_oi_usd, oi_chg = S.binance_oi(sym)
+        if oi_chg is None and on_okx:
+            oi_chg = S.okx_oi_history(sym)
+        if bn_oi_usd:
+            c["oi_usd"] = (c["oi_usd"] or 0.0) + bn_oi_usd     # 聚合兩所 OI（皆 USD）
+        # 1h 動能備援：CoinGecko 缺值時用 OKX K 線，避免動能誤判 0（穩定性）
+        if c.get("chg_1h") is None and on_okx:
+            ch = S.okx_chg_1h(sym)
+            if ch is not None:
+                c["chg_1h"] = ch
+        # CVD（僅 OKX 有 taker-volume）
+        cvd = S.okx_taker_cvd(sym) if on_okx else None
+        # 資金費率：聚合 OKX + 幣安（兩所均值更代表市場）
+        funds = [f for f in [c["funding"], (S.okx_funding(sym) if on_okx else None)] if f is not None]
+        funding = (sum(funds) / len(funds)) if funds else c["funding"]
+        # 多空比：核心幣取兩所均值
+        lsr = None
+        if i < lsr_top:
+            ls = [x for x in [(S.okx_lsr(sym) if on_okx else None), S.binance_lsr(sym)] if x is not None]
+            lsr = (sum(ls) / len(ls)) if ls else None
+        return score_coin(c, oi_chg=oi_chg, funding=funding, lsr=lsr, cvd=cvd)
+
+    with ThreadPoolExecutor(max_workers=6) as ex:     # 並行 enrich，取代序列 + sleep（首屏 10–25s → 數秒）
+        core = list(ex.map(_enrich, list(enumerate(head))))
+    rest = [score_coin(c, funding=c["funding"]) for (c, _) in tail]
 
     core.sort(key=lambda x: x["score"], reverse=True)
     bull = [x for x in core if x["score"] >= 20]
     bear = sorted([x for x in core if x["score"] <= -20], key=lambda x: x["score"])
     cand = [x for x in core if -20 < x["score"] < 20]
+    allcoins = core + rest
+
+    # ---- 市場層指標（比競品多/齊：恐懼貪婪 + 廣度 + 山寨季 + 聚合 OI + 平均費率）----
+    btc24 = next((x["chg_24h"] for x in allcoins if x["symbol"] == "BTC"), 0.0) or 0.0
+    top_liq = sorted([x for x in allcoins if x.get("vol_usdt_24h")],
+                     key=lambda x: x["vol_usdt_24h"], reverse=True)[:50]
+    alt_out = sum(1 for x in top_liq if (x.get("chg_24h") or 0) > btc24)
+    altseason = round(100 * alt_out / len(top_liq)) if top_liq else None
+    breadth = round(100 * len(bull) / max(1, len(bull) + len(bear))) if (bull or bear) else 50
+    total_oi = sum((x.get("oi_usd") or 0) for x in allcoins)
+    cf = [bn_fund[x["symbol"]] for x in core if x["symbol"] in bn_fund]
+    avg_funding = round(sum(cf) / len(cf), 4) if cf else None
+
     return {
         "updated": int(time.time()),
         "market": {"fear_greed": S.fear_greed(), "scored": len(core),
                    "bull_n": len(bull), "bear_n": len(bear),
-                   "total_coins": len(core) + len(rest),
-                   "sources": ["OKX", "幣安", "CoinGecko"]},
-        "coins": core + rest,
-        "groups": {"bullish": bull[:24], "bearish": bear[:24], "candidate": cand[:24]},
+                   "total_coins": len(allcoins),
+                   "sources": ["OKX", "幣安", "CoinGecko"],
+                   "altseason": altseason, "breadth": breadth,
+                   "total_oi_usd": round(total_oi), "avg_funding": avg_funding,
+                   "btc_chg_24h": round(btc24, 2)},
+        "coins": allcoins,
+        "groups": {"bullish": bull[:40], "bearish": bear[:40], "candidate": cand[:40]},
     }

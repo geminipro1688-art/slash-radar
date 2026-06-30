@@ -1,0 +1,47 @@
+# slash-radar：在 GitHub 雲端算好快照 → 部署到 GitHub Pages。
+# 每 15 分鐘定時重算整盤（不穩定/太慢的病根＝重運算放在使用者請求路徑，這裡把它搬到雲端離線批次）。
+# push / 手動也會觸發。Pages 來源請設為「GitHub Actions」。
+name: build-and-deploy
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # GitHub 高負載時段可能延後幾分鐘，對數據雷達可接受
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 不取消進行中的部署，避免半途中斷
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 安裝相依
+        run: pip install --no-cache-dir "requests>=2.28"
+      - name: 算快照（整盤 enrich + 評分 + 訊號 + 注入著陸頁樣本）
+        env:
+          SNAPSHOT_ENRICH: "80"
+        run: python backend/build_snapshot.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend
+      - name: 部署到 Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

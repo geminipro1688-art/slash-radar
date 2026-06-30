@@ -13,9 +13,10 @@ _board = {"t": 0.0, "data": None}
 _lock = threading.Lock()
 _building = threading.Lock()   # P0-2: 同一時間只允許一個執行緒重建看板（驚群保護），且 build 不在 _lock 內
 
-ROBOTS = f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n"
+ROBOTS = (f"User-agent: *\nAllow: /\nDisallow: /app.html\nDisallow: /signals.html\n"
+          f"Sitemap: {DOMAIN}/sitemap.xml\n")   # app/signals 為登入後內容，不收錄
 def _sitemap():
-    pages = ["/", "/signals", "/calculator"]
+    pages = ["/", "/calculator.html", "/learning.html"]   # 只放公開（吃 SEO）頁
     urls = "".join(f"<url><loc>{DOMAIN}{p}</loc><changefreq>hourly</changefreq></url>" for p in pages)
     return ('<?xml version="1.0" encoding="UTF-8"?>'
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + "</urlset>")
@@ -45,7 +46,15 @@ def _bg_collector():
         except Exception: pass
         time.sleep(120)
 
-PAGES = {"/": "index.html", "/calculator": "calculator.html", "/signals": "signals.html"}
+def _safe_file(base, rel):
+    """防目錄穿越：解析後必須仍在 base 內。"""
+    fp = os.path.normpath(os.path.join(base, rel))
+    return fp if os.path.abspath(fp).startswith(os.path.abspath(base)) and os.path.isfile(fp) else None
+
+_CT = {".html": "text/html; charset=utf-8", ".css": "text/css", ".js": "application/javascript",
+       ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png"}
+def _ctype(fp):
+    return _CT.get(os.path.splitext(fp)[1], "application/octet-stream")
 
 class H(BaseHTTPRequestHandler):
     def _send(self, code, body, ctype):
@@ -60,10 +69,10 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split("?")[0]
         try:
-            if path in PAGES:
-                with open(os.path.join(FRONT, PAGES[path]), "rb") as f:
-                    self._send(200, f.read(), "text/html; charset=utf-8")
-            elif path == "/api/board":
+            if path == "/":
+                fp = os.path.join(FRONT, "index.html")
+                with open(fp, "rb") as f: self._send(200, f.read(), "text/html; charset=utf-8")
+            elif path == "/api/board":     # 本機即時模式（Pages 上前端改讀 data/board.json）
                 self._send(200, json.dumps(get_board(), ensure_ascii=False), "application/json; charset=utf-8")
             elif path == "/api/signals":
                 self._send(200, json.dumps(signals.latest(), ensure_ascii=False), "application/json; charset=utf-8")
@@ -73,14 +82,13 @@ class H(BaseHTTPRequestHandler):
                 self._send(200, _sitemap(), "application/xml; charset=utf-8")
             elif path == "/healthz":
                 self._send(200, "ok", "text/plain")
-            elif path.startswith("/static/"):
-                fp = os.path.join(FRONT, "static", path[len("/static/"):])
-                if os.path.isfile(fp):
-                    ct = "text/css" if fp.endswith(".css") else "application/javascript" if fp.endswith(".js") else "application/octet-stream"
-                    with open(fp, "rb") as f: self._send(200, f.read(), ct)
-                else: self._send(404, "not found", "text/plain")
             else:
-                self._send(404, "not found", "text/plain")
+                # 服務 frontend/ 下的 .html / static/ / data/ 等靜態檔（與 Pages 同構）
+                fp = _safe_file(FRONT, path.lstrip("/"))
+                if fp:
+                    with open(fp, "rb") as f: self._send(200, f.read(), _ctype(fp))
+                else:
+                    self._send(404, "not found", "text/plain")
         except Exception as e:
             self._send(500, json.dumps({"error": str(e)}), "application/json; charset=utf-8")
 

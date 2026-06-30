@@ -14,16 +14,26 @@ GECKO = "https://api.coingecko.com/api/v3"
 
 _cache = {}  # 簡易記憶體快取，降低對上游的請求頻率（對標競品的 *-cache 端點）
 
-def _get(url, ttl=20, params=None):
+def _get(url, ttl=20, params=None, retries=2):
     key = url + "|" + str(params)
     now = time.time()
     if key in _cache and now - _cache[key][0] < ttl:
         return _cache[key][1]
-    r = requests.get(url, params=params, headers=UA, timeout=20)
-    r.raise_for_status()
-    j = r.json()
-    _cache[key] = (now, j)
-    return j
+    last = None
+    for attempt in range(retries + 1):
+        try:
+            r = requests.get(url, params=params, headers=UA, timeout=20)
+            if r.status_code in (429, 418) or r.status_code >= 500:   # 限速/被擋/上游錯 → 退避重試
+                raise requests.HTTPError(f"HTTP {r.status_code}")
+            r.raise_for_status()
+            j = r.json()
+            _cache[key] = (now, j)
+            return j
+        except Exception as e:
+            last = e
+            if attempt < retries:
+                time.sleep(0.6 * (2 ** attempt))   # 0.6s → 1.2s 指數退避
+    raise last
 
 # ---------- OKX 永續合約（USDT 本位） ----------
 def okx_tickers():
@@ -60,7 +70,9 @@ def okx_oi():
         sym = iid[:-10]
         try:
             oi_usd = d.get("oiUsd")
-            out[sym] = float(oi_usd) if oi_usd not in (None, "") else float(d.get("oiCcy", 0))
+            if oi_usd in (None, ""):
+                continue                       # 缺 USD 計價就跳過，不用幣本位數量(oiCcy)污染聚合 OI/市值比
+            out[sym] = float(oi_usd)
         except (KeyError, ValueError):
             pass
     return out
@@ -109,6 +121,19 @@ def okx_taker_cvd(sym):
         return buy - sell
     except Exception:
         return None
+
+def okx_chg_1h(sym):
+    """單一幣 1h 價格變化%（OKX 1H K 線；CoinGecko 1h 缺值時的備援，避免動能誤判為 0）。"""
+    try:
+        j = _get(OKX + "/api/v5/market/candles", ttl=60,
+                 params={"instId": f"{sym}-USDT-SWAP", "bar": "1H", "limit": 2})
+        data = j.get("data", [])   # 新→舊 [ts,o,h,l,c,...]
+        if data:
+            o = float(data[0][1]); c = float(data[0][4])
+            return (c / o - 1) * 100 if o else None
+    except Exception:
+        pass
+    return None
 
 # ---------- CoinGecko（市值、1h 動能、幣 logo） ----------
 def gecko_markets(pages=1, per_page=250):

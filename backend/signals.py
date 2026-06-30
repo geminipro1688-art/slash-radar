@@ -19,6 +19,7 @@ def _load():
         return []
 
 def _save(sigs):
+    os.makedirs(os.path.dirname(LOG), exist_ok=True)   # CI 全新 checkout 時 data/ 可能不存在
     json.dump(sigs[-_MAX:], open(LOG, "w", encoding="utf-8"), ensure_ascii=False)
 
 # ---------- 中立數據解讀 ----------

@@ -3,99 +3,86 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>合約數據雷達 SLASH RADAR｜OKX 幣安雙所 OI 資金費率即時選幣評分</title>
-<meta name="description" content="免費合約數據雷達：聚合 OKX、幣安雙所即時行情、未平倉 OI、資金費率、主動買賣量，算出中立選幣評分、OI 異動排名、板塊輪動。純數據呈現，不薦股、不給買賣建議。">
-<meta name="keywords" content="合約數據,OI異動,未平倉,資金費率,選幣工具,加密貨幣合約,OKX,幣安,CVD,多空比,合約篩選">
+<title>合約數據雷達 SLASH RADAR｜OKX 幣安雙所 OI・資金費率・CVD 中立選幣評分</title>
+<meta name="description" content="免費合約數據雷達：聚合 OKX、幣安雙所即時行情、未平倉 OI、資金費率、主動買賣量 CVD、多空比，算出中立的「數據結構強度評分」、OI 異動排名、板塊輪動與訊號流。純數據呈現，不薦股、不給買賣建議。">
+<meta name="keywords" content="合約數據,OI異動,未平倉量,資金費率,選幣工具,合約選幣,加密貨幣合約,OKX,幣安,CVD,多空比,合約篩選器,持倉量異常">
 <link rel="canonical" href="https://radar.slash-invest.com/">
 <meta name="robots" content="index,follow">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://radar.slash-invest.com/">
-<meta property="og:title" content="合約數據雷達 SLASH RADAR">
-<meta property="og:description" content="OKX＋幣安雙所聚合的即時合約數據選幣評分、OI 異動、板塊輪動、中立訊號流。">
+<meta property="og:title" content="合約數據雷達 SLASH RADAR｜雙所中立選幣評分">
+<meta property="og:description" content="OKX＋幣安雙所聚合的即時合約數據選幣評分、OI 異動、板塊輪動、中立訊號流。純數據、不給買賣建議。">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"什麼是合約數據雷達？","acceptedAnswer":{"@type":"Answer","text":"它聚合 OKX、幣安兩大交易所的永續合約公開數據——價格動能、未平倉量 OI、資金費率、主動買賣量 CVD、多空比——把每個幣的合約盤面編碼成一個中立的『數據結構強度評分』與情境標籤（增倉上行、減倉下行、下方吸籌等），協助快速看懂市場結構。它只呈現已發生的數據，不提供買賣建議。"}},
+{"@type":"Question","name":"這個評分代表可以買進或做空嗎？","acceptedAnswer":{"@type":"Answer","text":"不代表。評分只是對『已發生合約數據』的統計描述，衡量數據偏多方或偏空方結構的強度，不是、也不應被解讀為進場、止損、止盈或買賣指令。每張卡都附免責聲明。"}},
+{"@type":"Question","name":"OI 異動、資金費率、CVD 怎麼看？","acceptedAnswer":{"@type":"Answer","text":"OI（未平倉量）上升代表資金進場、合約部位增加；資金費率為正代表多頭付費給空頭、多方擁擠，為負則相反；CVD（主動買賣量差）為正代表主動買盤佔優。價格與這些數據同向或背離，會落入不同的情境分類。"}},
+{"@type":"Question","name":"資料多久更新一次？要錢嗎？","acceptedAnswer":{"@type":"Answer","text":"完全免費。系統每約 15 分鐘在雲端重新計算整盤並更新快照，著陸頁的即時樣本與登入後的完整雷達都讀同一份快照，因此秒開、不會卡。"}}
+]}
+</script>
 <style>
 :root{
   --bg:#050505;--panel:#0d0c09;--panel2:#141108;--line:rgba(212,175,55,.18);
   --line2:rgba(255,255,255,.07);--gold:#d4af37;--gold2:#f5c84b;
   --text:#f5f1e8;--muted:#9b927f;--soft:#6f6759;
-  --green:#16c784;--green2:#0c2a20;--red:#ea3943;--red2:#2a1012;
-}
+  --green:#16c784;--red:#ea3943;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
-  background:radial-gradient(circle at 18% 12%,rgba(212,175,55,.10),transparent 30%),
-    radial-gradient(circle at 82% 4%,rgba(245,200,75,.06),transparent 26%),
+  background:radial-gradient(circle at 18% 8%,rgba(212,175,55,.12),transparent 32%),
+    radial-gradient(circle at 84% 2%,rgba(245,200,75,.07),transparent 28%),
     linear-gradient(135deg,#040404 0%,#0a0906 48%,#060606 100%);}
-.wrap{max-width:1280px;margin:0 auto;padding:0 20px 60px}
-header{display:flex;align-items:center;gap:22px;padding:16px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px 70px}
+header{display:flex;align-items:center;gap:20px;padding:16px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;
   background:linear-gradient(180deg,rgba(5,5,5,.96),rgba(5,5,5,.82));backdrop-filter:blur(8px)}
-.logo{font-weight:800;letter-spacing:.5px;font-size:19px}
-.logo b{color:var(--gold2)}
-nav{display:flex;gap:20px;font-size:14px;color:var(--muted)}
+.logo{font-weight:800;letter-spacing:.5px;font-size:19px}.logo b{color:var(--gold2)}
+nav{display:flex;gap:18px;font-size:14px;color:var(--muted);flex-wrap:wrap}
 nav a{color:var(--muted);text-decoration:none;cursor:pointer}
-nav a.on,nav a:hover{color:var(--gold2)}
-.upd{margin-left:auto;font-size:12px;color:var(--soft)}
-.strip{display:grid;grid-template-columns:200px repeat(3,1fr);gap:14px;margin:20px 0}
-.card{background:linear-gradient(160deg,var(--panel),#0a0805);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.gauge{display:flex;flex-direction:column;align-items:center;justify-content:center}
-.gauge .big{font-size:34px;font-weight:800}
-.kpi .lab{font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px}
-.kpi .val{font-size:26px;font-weight:800}
-.kpi .sub{font-size:12px;color:var(--soft);margin-top:4px}
-.up{color:var(--green)} .down{color:var(--red)} .neu{color:var(--gold2)}
-.bar2{display:flex;align-items:center;gap:14px;margin:6px 0 4px;flex-wrap:wrap}
-.search input{background:#0a0805;border:1px solid var(--line);border-radius:999px;color:var(--text);padding:9px 16px;font-size:14px;font-family:inherit;width:300px;max-width:60vw}
-.search input:focus{outline:none;border-color:var(--gold)}
-.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-left:auto}
-.tab{padding:8px 15px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--muted);cursor:pointer;background:transparent}
-.tab.on{color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold));border-color:transparent;font-weight:700}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
-.coin{position:relative;border:1px solid var(--line2);border-radius:14px;padding:14px 16px 12px;overflow:hidden;
-  background:linear-gradient(160deg,var(--panel2),#0a0805)}
-.coin .bar{position:absolute;left:0;top:0;bottom:0;width:4px}
-.coin.bull .bar{background:linear-gradient(var(--green),#0b7a4f)} .coin.bull{border-color:rgba(22,199,132,.35)}
-.coin.bear .bar{background:linear-gradient(var(--red),#7a1620)} .coin.bear{border-color:rgba(234,57,67,.32)}
-.coin.cand .bar{background:linear-gradient(var(--gold2),var(--gold))}
-.crow{display:flex;align-items:center;gap:10px}
-.crow img{width:26px;height:26px;border-radius:50%;background:#222}
-.sym{font-weight:800;font-size:16px}.nm{font-size:11px;color:var(--soft)}
-.px{margin-left:auto;text-align:right}.px .p{font-weight:700;font-size:14px}.px .c{font-size:12px}
-.mid{display:flex;align-items:center;gap:12px;margin:10px 0 8px}
-.score{font-size:30px;font-weight:800;line-height:1}
-.badges{display:flex;flex-direction:column;gap:4px}
-.pill{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(212,175,55,.12);color:var(--gold2);width:fit-content}
-.scen{font-size:12px;color:var(--text);opacity:.9}
-.facs{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
-.fac{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
-.flags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.flag{font-size:10.5px;color:#ffd9a8;background:rgba(245,140,40,.14);border:1px solid rgba(245,140,40,.3);border-radius:5px;padding:2px 6px}
-.cta{display:flex;align-items:center;gap:8px}
-.cta a{flex:1;text-align:center;font-size:12.5px;font-weight:700;text-decoration:none;padding:7px;border-radius:8px;
-  color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold))}
-.cta a.bn{background:linear-gradient(180deg,#f3ba2f,#d99e0b)}
-.ex{font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
-.ex.ok{background:rgba(60,130,255,.18);color:#8ab4ff}
-.ex.bn{background:rgba(243,186,47,.2);color:#f3ba2f}
-.disc{font-size:10px;color:var(--soft);margin-top:8px;line-height:1.4}
-.foot{margin-top:30px;padding:16px;border:1px solid var(--line);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.7}
-.loading{text-align:center;padding:60px;color:var(--muted)}
-/* OI 異動雙榜 */
-.oi-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:760px){.oi-wrap{grid-template-columns:1fr}.strip{grid-template-columns:1fr 1fr}}
-.oi-col h3{font-size:14px;margin:0 0 12px;padding-left:9px;border-left:3px solid var(--gold)}
-.oi-col.up h3{border-color:var(--green)}.oi-col.down h3{border-color:var(--red)}
-.oi-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line2);border-radius:10px;margin-bottom:7px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
-.oi-item .r{color:var(--soft);font-size:12px;width:18px;text-align:center}
-.oi-item img{width:22px;height:22px;border-radius:50%;background:#222}
-.oi-item .s{font-weight:700;font-size:14px}
-.oi-item .px2{font-size:12px;color:var(--muted);margin-left:auto;width:90px;text-align:right}
-.oi-item .chg{font-weight:800;width:74px;text-align:right}
-/* 板塊輪動 */
-.sectors{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:12px}
-.sec{border:1px solid var(--line2);border-radius:12px;padding:14px 16px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
-.sec .nm2{font-weight:700;font-size:15px}.sec .n{font-size:11px;color:var(--soft);margin-left:6px}
-.sec .big2{font-size:23px;font-weight:800;margin:8px 0 2px}
-.sec .meta{font-size:11.5px;color:var(--muted)}
-.sec .bardiv{height:6px;border-radius:3px;background:#1a1408;margin-top:10px;overflow:hidden}
-.sec .barfill{height:100%}
+nav a.cta-nav{color:var(--gold2);font-weight:700}
+nav a:hover{color:var(--gold2)}
+.hero{padding:46px 0 30px;text-align:center}
+.hero .tag{display:inline-block;font-size:12.5px;color:var(--gold2);border:1px solid var(--line);border-radius:999px;padding:5px 14px;margin-bottom:18px}
+.hero h1{font-size:38px;line-height:1.18;letter-spacing:.5px}
+.hero h1 b{color:var(--gold2)}
+.hero p{max-width:660px;margin:16px auto 0;color:var(--muted);font-size:16px;line-height:1.7}
+.hero .btns{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.btn{text-decoration:none;font-weight:700;font-size:15px;padding:12px 26px;border-radius:10px;cursor:pointer;border:none;font-family:inherit}
+.btn.gold{color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.btn.ghost{color:var(--gold2);background:transparent;border:1px solid var(--line)}
+.sec{margin-top:46px}
+.sec h2{font-size:21px;margin-bottom:6px}.sec .lead{color:var(--soft);font-size:13.5px;margin-bottom:18px}
+.snapshot{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:linear-gradient(160deg,var(--panel),#0a0805);overflow-x:auto}
+.snapshot-meta{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.snapshot-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:520px}
+.snapshot-table th{text-align:left;color:var(--soft);font-weight:600;padding:7px 10px;border-bottom:1px solid var(--line2);font-size:12px}
+.snapshot-table td{padding:9px 10px;border-bottom:1px solid var(--line2)}
+.snapshot-table td.s{font-weight:800}
+.snapshot-table .up{color:var(--green);font-weight:800}.snapshot-table .down{color:var(--red);font-weight:800}.snapshot-table .neu{color:var(--gold2);font-weight:800}
+.locknote{margin-top:14px;font-size:13px;color:var(--muted)}.locknote a{color:var(--gold2);text-decoration:none}
+.feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.fcard{border:1px solid var(--line2);border-radius:13px;padding:16px 18px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.fcard .i{font-size:20px}.fcard h3{font-size:15px;margin:8px 0 5px}.fcard p{font-size:12.5px;color:var(--muted);line-height:1.6}
+.dims{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.dim{border:1px solid var(--line2);border-radius:12px;padding:14px 16px;background:rgba(255,255,255,.02)}
+.dim b{color:var(--gold2)}.dim p{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:5px}
+.faq{border:1px solid var(--line2);border-radius:12px;padding:6px 18px;background:linear-gradient(160deg,var(--panel2),#0a0805)}
+.faq details{border-bottom:1px solid var(--line2);padding:13px 0}.faq details:last-child{border:none}
+.faq summary{cursor:pointer;font-weight:600;font-size:14.5px;list-style:none}.faq summary::-webkit-details-marker{display:none}
+.faq summary::before{content:"＋ ";color:var(--gold2)}.faq details[open] summary::before{content:"－ "}
+.faq p{font-size:13px;color:var(--muted);line-height:1.7;margin-top:9px}
+/* 登入 */
+#login{margin-top:46px}
+.loginbox{max-width:380px;margin:0 auto;border:1px solid var(--line);border-radius:16px;padding:26px 24px;background:linear-gradient(160deg,var(--panel),#0a0805)}
+.loginbox h2{font-size:18px;text-align:center;margin-bottom:4px}
+.loginbox .sub{text-align:center;color:var(--soft);font-size:12.5px;margin-bottom:18px}
+.loginbox label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+.loginbox input{width:100%;background:#0a0805;border:1px solid var(--line2);border-radius:9px;color:var(--text);padding:11px 13px;font-size:15px;font-family:inherit}
+.loginbox input:focus{outline:none;border-color:var(--gold)}
+.loginbox .go{width:100%;margin-top:18px}
+.loginbox .err{color:var(--red);font-size:12.5px;text-align:center;margin-top:10px;min-height:16px}
+.loginbox .demo{text-align:center;color:var(--soft);font-size:11.5px;margin-top:14px;line-height:1.6}
+.foot{margin-top:46px;padding:18px;border:1px solid var(--line);border-radius:12px;font-size:12px;color:var(--muted);line-height:1.7}
+.foot b{color:var(--text)}
+@media(max-width:640px){.hero h1{font-size:28px}}
 </style>
 </head>
 <body>
@@ -103,167 +90,124 @@ nav a.on,nav a:hover{color:var(--gold2)}
   <header>
     <div class="logo">SLASH <b>RADAR</b>　合約數據雷達</div>
     <nav>
-      <a class="on" href="/">市場儀表板</a><a href="/signals">訊號專區</a><a href="/calculator">倉位計算機</a><a>學習資源</a>
+      <a href="app.html">市場儀表板</a>
+      <a href="signals.html">訊號專區</a>
+      <a href="calculator.html">倉位計算機</a>
+      <a href="learning.html">學習資源</a>
+      <a class="cta-nav" href="#login">登入 →</a>
     </nav>
-    <div class="upd" id="upd">載入中…</div>
   </header>
 
-  <div class="strip">
-    <div class="card gauge"><div class="lab" style="font-size:12px;color:var(--muted)">恐懼貪婪指數</div>
-      <div class="big neu" id="fng">–</div><div class="sub" id="fngL" style="color:var(--soft);font-size:12px"></div></div>
-    <div class="card kpi"><div class="lab">偏多方結構</div><div class="val up" id="bullN">–</div><div class="sub">score ≥ +20 的幣數</div></div>
-    <div class="card kpi"><div class="lab">偏空方結構</div><div class="val down" id="bearN">–</div><div class="sub">score ≤ −20 的幣數</div></div>
-    <div class="card kpi"><div class="lab">掃描幣種</div><div class="val neu" id="totN">–</div><div class="sub">OKX＋幣安 USDT 永續</div></div>
-  </div>
-
-  <div class="bar2">
-    <div class="search"><input id="q" placeholder="🔎 搜尋幣種，如 BTC、SOL、PEPE…"></div>
-    <div class="tabs" id="tabs">
-      <div class="tab on" data-g="bullish">偏多方結構</div>
-      <div class="tab" data-g="bearish">偏空方結構</div>
-      <div class="tab" data-g="candidate">分歧 / 候選</div>
-      <div class="tab" data-g="all">全部</div>
-      <div class="tab" data-g="oi">OI 異動排名</div>
-      <div class="tab" data-g="sector">板塊輪動</div>
+  <section class="hero">
+    <span class="tag">OKX × 幣安 雙所聚合　·　中立合規　·　永久免費</span>
+    <h1>把合約盤面，<b>翻成一眼看懂的數據結構</b></h1>
+    <p>聚合兩大所的未平倉 OI、資金費率、主動買賣量 CVD、多空比與價格動能，為每個幣算出一個<b>中立的數據結構強度評分</b>與情境標籤。我們只呈現「已經發生的數據」——不薦股、不給進出場、不給止損止盈。看懂結構，自己決策。</p>
+    <div class="btns">
+      <a class="btn gold" href="#login">登入看完整雷達</a>
+      <a class="btn ghost" href="learning.html">先看怎麼讀數據</a>
     </div>
-  </div>
+  </section>
 
-  <div id="grid" class="grid"><div class="loading">正在拉取 OKX／幣安／CoinGecko 即時數據並計算評分…（約 10–25 秒）</div></div>
+  <section class="sec" id="sample">
+    <h2>即時樣本 · 數據異動最強的幣</h2>
+    <div class="lead">下方為公開樣本（每約 15 分鐘更新）。完整 400+ 幣評分、OI 異動雙榜、板塊輪動、訊號流在登入後。</div>
+    <div class="snapshot" id="snapshot">
+      <!--SNAPSHOT_START-->
+<p class="snapshot-meta">最近更新 2026-06-30 09:38 UTC　·　掃描 446 幣　·　偏多 13／偏空 12　·　恐懼貪婪 15</p><table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody><tr><td class="s">UB</td><td>其他</td><td class="up">+62</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">BAS</td><td>其他</td><td class="up">+50</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">ORDI</td><td>其他</td><td class="down">-44</td><td>減倉下行</td><td>合約數據偏空方結構</td></tr><tr><td class="s">TAC</td><td>其他</td><td class="up">+43</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">RE</td><td>其他</td><td class="up">+37</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">KGEN</td><td>其他</td><td class="up">+35</td><td>動能衰減（價漲量縮）</td><td>合約數據偏多方結構</td></tr><tr><td class="s">IN</td><td>其他</td><td class="up">+35</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">RIF</td><td>其他</td><td class="up">+32</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr></tbody></table>
+<!--SNAPSHOT_END-->
+    </div>
+    <p class="locknote">想看全部 400+ 幣的評分、情境與一鍵下單？<a href="#login">登入解鎖完整雷達 →</a></p>
+  </section>
+
+  <section class="sec">
+    <h2>裡面有什麼</h2>
+    <div class="lead">對標市面工具的全套模組，多了它們沒有的「中立合規」與「公開 SEO 層」。</div>
+    <div class="feat">
+      <div class="fcard"><div class="i">🎯</div><h3>雙所選幣評分</h3><p>400+ 幣即時評分卡，偏多／偏空／分歧分組，透明列出每個維度貢獻幾分。</p></div>
+      <div class="fcard"><div class="i">📊</div><h3>OI 異動雙榜</h3><p>1 小時未平倉增倉／減倉排名，看資金往哪流。</p></div>
+      <div class="fcard"><div class="i">🧭</div><h3>板塊輪動</h3><p>L1／L2／Meme／DeFi／AI／GameFi 等板塊的平均強度與漲跌，看資金輪到哪。</p></div>
+      <div class="fcard"><div class="i">🔔</div><h3>中立訊號流</h3><p>數據達門檻自動記錄的「現象流」，每條附中立白話解讀。</p></div>
+      <div class="fcard"><div class="i">🧮</div><h3>倉位計算機</h3><p>先設能虧多少，反推部位、槓桿、爆倉價與強平緩衝。</p></div>
+      <div class="fcard"><div class="i">🤖</div><h3>每卡數據解讀</h3><p>每張卡一句中立白話，說明這個結構代表什麼數據現象。</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>五大數據維度，怎麼變成分數</h2>
+    <div class="lead">評分完全透明、可解釋——不是黑箱。下面是每個維度的中立定義。</div>
+    <div class="dims">
+      <div class="dim"><b>OI 結構（權重最高）</b><p>未平倉量與價格同向上升＝資金主動增倉（增倉上行）；價跌但 OI 增＝空方增倉；價漲 OI 減＝空頭回補的輕倉反彈。</p></div>
+      <div class="dim"><b>價格動能（1h）</b><p>近 1 小時漲跌幅，衡量短線動能方向與強弱。</p></div>
+      <div class="dim"><b>資金費率</b><p>正費率＝多頭付費、多方擁擠；負費率＝空頭擁擠。極端值會標記「費率背離」。</p></div>
+      <div class="dim"><b>主動買賣量 CVD</b><p>主動買量減主動賣量。價漲但 CVD 轉弱＝動能衰減；價跌但買盤增＝下方吸籌。</p></div>
+      <div class="dim"><b>多空比</b><p>多空帳戶比，過度擁擠時做反向風險提示（多方／空方擁擠）。</p></div>
+      <div class="dim"><b>槓桿擁擠（風險標籤）</b><p>OI／市值比偏高時標記「槓桿擁擠」，只示警、不計分方向。</p></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>常見問題</h2>
+    <div class="faq">
+      <details open><summary>這個評分代表可以買進或做空嗎？</summary><p>不代表。評分只是對「已發生合約數據」的統計描述，衡量數據偏多方或偏空方結構的強度，不是、也不應被解讀為進場、止損、止盈或買賣指令。每張卡都附免責聲明。這也是我們和「直接給買賣點」的工具最大的不同。</p></details>
+      <details><summary>資料來源是什麼？準嗎？</summary><p>全部來自 OKX、幣安的公開合約 API 與 CoinGecko 市值資料。OI 與資金費率做雙所聚合（USD 計價、缺值跳過不污染），1h 動能有 K 線備援，盡量讓每個維度的數據完整可信，並在卡上標出「資料完整度」。</p></details>
+      <details><summary>多久更新？要錢嗎？</summary><p>完全免費。每約 15 分鐘在雲端重算整盤、更新快照，所以開站秒到、不卡。</p></details>
+      <details><summary>為什麼要登入？</summary><p>完整雷達（全幣評分、OI 雙榜、板塊輪動、訊號流）在登入後；公開的著陸頁、即時樣本、學習資源與計算機不需登入，方便你先了解。</p></details>
+    </div>
+  </section>
+
+  <section id="login">
+    <div class="loginbox">
+      <h2>登入 SLASH RADAR</h2>
+      <div class="sub">輸入帳號密碼進入完整雷達</div>
+      <label>帳號</label>
+      <input id="u" autocomplete="username" placeholder="帳號">
+      <label>密碼</label>
+      <input id="p" type="password" autocomplete="current-password" placeholder="密碼" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="btn gold go" onclick="doLogin()">進入雷達 →</button>
+      <div class="err" id="err"></div>
+      <div class="demo">示範帳密：<b>slash / slash2026</b>　（可在 static/auth.js 自行更換）</div>
+    </div>
+  </section>
 
   <div class="foot">
     ⚠️ <b>免責聲明</b>：本站所有評分、情境標籤、OI 排名、板塊輪動與數據解讀，均為對【已發生】合約市場數據（價格、未平倉、資金費率、主動買賣量等）的<b>統計呈現</b>，僅供研究與教育參考，<b>不構成任何投資建議、招攬或買賣指令</b>。加密貨幣合約屬高風險商品，可能損失全部本金，投資前請自行評估並對自身決策負責。數據來源：OKX 公開 API、幣安公開 API、CoinGecko。
   </div>
 </div>
 
+<script src="static/auth.js"></script>
 <script>
-// === slash-invest 交易所返佣連結（單一真相源，改碼只改這裡）===
-const REF = {
-  okx:     "https://www.okx.com/join/VIP20FEE",
-  binance: "https://www.binance.com/register?ref=VIP20FEE",
-  // bybit:  待補連結（碼 SLASHCAPITAL）
-  // bitget: "https://partner.bitget.com/bg/jbsj2anv"（碼 VIP20FEE）
-};
-// === 板塊映射（主流幣，未列入歸「其他」）===
-const SECTORS={
- BTC:"L1",ETH:"L1",SOL:"L1",BNB:"L1",XRP:"L1",ADA:"L1",AVAX:"L1",SUI:"L1",APT:"L1",SEI:"L1",TON:"L1",NEAR:"L1",TRX:"L1",DOT:"L1",ATOM:"L1",ALGO:"L1",HBAR:"L1",TIA:"L1",INJ:"L1",LTC:"L1",BCH:"L1",
- ARB:"L2",OP:"L2",MATIC:"L2",STRK:"L2",MANTA:"L2",ZK:"L2",BLAST:"L2",METIS:"L2",IMX:"L2",
- DOGE:"Meme",SHIB:"Meme",PEPE:"Meme",WIF:"Meme",BONK:"Meme",FLOKI:"Meme",BRETT:"Meme",POPCAT:"Meme",MEW:"Meme",NEIRO:"Meme",TURBO:"Meme",BOME:"Meme",MOG:"Meme",PNUT:"Meme",PEOPLE:"Meme",
- UNI:"DeFi",AAVE:"DeFi",MKR:"DeFi",LDO:"DeFi",CRV:"DeFi",COMP:"DeFi",SUSHI:"DeFi",CAKE:"DeFi",PENDLE:"DeFi",ENA:"DeFi",JUP:"DeFi",RAY:"DeFi",DYDX:"DeFi",GMX:"DeFi",
- FET:"AI",RENDER:"AI",TAO:"AI",WLD:"AI",ARKM:"AI",AI16Z:"AI",VIRTUAL:"AI",NMR:"AI",GRASS:"AI",IO:"AI",
- AXS:"GameFi",SAND:"GameFi",MANA:"GameFi",GALA:"GameFi",APE:"GameFi",PIXEL:"GameFi",BEAM:"GameFi",
-};
-const sectorOf=s=>SECTORS[s]||"其他";
-
-let BOARD=null, CUR="bullish", QUERY="";
-const $=s=>document.querySelector(s);
-function fmtPx(p){ if(p==null)return "–"; p=+p; return p>=100?p.toLocaleString(undefined,{maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toPrecision(4); }
-function cls(s){ return s>=20?"bull":s<=-20?"bear":"cand"; }
-
-function card(x){
-  const c=cls(x.score), sc=(x.score>0?"+":"")+x.score;
-  const chg1=x.chg_1h;
-  const facs=(x.factors||[]).map(f=>`<span class="fac">${f.key} ${f.points>0?"+":""}${f.points}</span>`).join("");
-  const flags=(x.flags||[]).map(f=>`<span class="flag">${f}</span>`).join("");
-  const exch=x.exchanges||[];
-  const exTag=exch.map(e=>`<span class="ex ${e==='幣安'?'bn':'ok'}">${e}</span>`).join("");
-  const ctas=[];
-  if(exch.includes("OKX")) ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
-  if(exch.includes("幣安")) ctas.push(`<a class="bn" href="${REF.binance}" target="_blank" rel="noopener">幣安 ↗</a>`);
-  if(!ctas.length) ctas.push(`<a href="${REF.okx}" target="_blank" rel="noopener">OKX ↗</a>`);
-  return `<div class="coin ${c}"><span class="bar"></span>
-    <div class="crow">
-      ${x.image?`<img src="${x.image}" onerror="this.style.visibility='hidden'">`:`<div style="width:26px"></div>`}
-      <div><div class="sym">${x.symbol}${exTag}</div><div class="nm">${x.name||""}</div></div>
-      <div class="px"><div class="p">$${fmtPx(x.price)}</div>
-        <div class="c ${chg1>=0?'up':'down'}">1h ${chg1>=0?"+":""}${chg1??"–"}%</div></div>
-    </div>
-    <div class="mid">
-      <div class="score ${c=='bull'?'up':c=='bear'?'down':'neu'}">${sc}</div>
-      <div class="badges"><span class="pill">${x.grade}</span><span class="scen">${x.scenario}</span></div>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${x.bias}</div>
-    <div class="facs">${facs}</div>
-    ${flags?`<div class="flags">${flags}</div>`:""}
-    <div class="cta">${ctas.join("")}</div>
-    <div class="disc">${x.disclaimer}</div>
-  </div>`;
+// 已登入則直接給「進入雷達」捷徑
+if (slashAuthed()) {
+  document.querySelector(".hero .btns").innerHTML =
+    '<a class="btn gold" href="app.html">進入雷達（'+slashUser()+'）→</a>'+
+    '<a class="btn ghost" href="javascript:slashLogout()">登出</a>';
 }
-
-function renderOI(){
-  const wi=BOARD.coins.filter(c=>c.oi_chg!=null);
-  const up=[...wi].filter(c=>c.oi_chg>0).sort((a,b)=>b.oi_chg-a.oi_chg).slice(0,15);
-  const dn=[...wi].filter(c=>c.oi_chg<0).sort((a,b)=>a.oi_chg-b.oi_chg).slice(0,15);
-  const item=(c,i)=>`<div class="oi-item"><span class="r">${i+1}</span>
-    ${c.image?`<img src="${c.image}" onerror="this.style.visibility='hidden'">`:`<div style="width:22px"></div>`}
-    <span class="s">${c.symbol}</span>
-    <span class="px2">$${fmtPx(c.price)}</span>
-    <span class="chg ${c.oi_chg>=0?'up':'down'}">${c.oi_chg>=0?'+':''}${c.oi_chg}%</span></div>`;
-  return `<div class="oi-wrap">
-    <div class="oi-col up"><h3>OI 增倉榜（1h，資金進場）</h3>${up.map(item).join('')||'<div class=loading>暫無</div>'}</div>
-    <div class="oi-col down"><h3>OI 減倉榜（1h，資金離場）</h3>${dn.map(item).join('')||'<div class=loading>暫無</div>'}</div>
-  </div>`;
-}
-
-function renderSectors(){
-  const map={};
-  BOARD.coins.forEach(c=>{const s=sectorOf(c.symbol);(map[s]=map[s]||[]).push(c);});
-  const rows=Object.entries(map).map(([nm,arr])=>({
-    nm, n:arr.length,
-    avg:arr.reduce((s,c)=>s+(c.chg_24h||0),0)/arr.length,
-    avgScore:arr.reduce((s,c)=>s+c.score,0)/arr.length,
-  })).sort((a,b)=>b.avg-a.avg);
-  return `<div class="sectors">`+rows.map(r=>{
-    const col=r.avg>=0?'var(--green)':'var(--red)';
-    const w=Math.min(100,Math.abs(r.avg)*8);
-    return `<div class="sec"><div><span class="nm2">${r.nm}</span><span class="n">${r.n} 幣</span></div>
-      <div class="big2" style="color:${col}">${r.avg>=0?'+':''}${r.avg.toFixed(2)}%</div>
-      <div class="meta">平均評分 ${r.avgScore>=0?'+':''}${r.avgScore.toFixed(0)}　·　24h 板塊均漲跌</div>
-      <div class="bardiv"><div class="barfill" style="width:${w}%;background:${col}"></div></div></div>`;
-  }).join('')+`</div>`;
-}
-
-function render(){
-  if(!BOARD||!Array.isArray(BOARD.coins))return;
-  const g=$("#grid");
-  if(QUERY){
-    const list=BOARD.coins.filter(c=>c.symbol.toLowerCase().includes(QUERY)||((c.name||'').toLowerCase().includes(QUERY)));
-    g.className="grid";
-    g.innerHTML=list.length?list.map(card).join(""):`<div class="loading">查無「${QUERY}」相關幣種。</div>`;
-    return;
+async function doLogin(){
+  const u=document.getElementById("u").value, p=document.getElementById("p").value;
+  const ok=await slashLogin(u,p);
+  if(ok){
+    const params=new URLSearchParams(location.search);
+    location.href=params.get("next")||"app.html";
+  }else{
+    document.getElementById("err").textContent="帳號或密碼錯誤";
   }
-  if(CUR==="oi"){ g.className=""; g.innerHTML=renderOI(); return; }
-  if(CUR==="sector"){ g.className=""; g.innerHTML=renderSectors(); return; }
-  const list = CUR==="all" ? [...BOARD.coins].sort((a,b)=>b.score-a.score).slice(0,80) : ((BOARD.groups&&BOARD.groups[CUR])||[]);
-  g.className="grid";
-  g.innerHTML = list.length? list.map(card).join("") : `<div class="loading">此分類目前沒有達標的幣種，可切換「全部」。</div>`;
 }
-
-async function load(){
-  const g=$("#grid");
+// 公開即時樣本：若 SSR 注入為空（本機未跑快照），用 board.json 補一份給訪客看
+(async function fillSample(){
+  const box=document.getElementById("snapshot");
+  if(box && box.textContent.indexOf("最近更新")>=0) return; // 已有 SSR 注入內容
   try{
-    const API=location.protocol.startsWith("http")?"":"http://127.0.0.1:8088";
-    const r=await fetch(API+"/api/board");
-    if(!r.ok) throw new Error("伺服器回應 "+r.status);
-    const data=await r.json();
-    if(!data || !data.market || !Array.isArray(data.coins))
-      throw new Error((data&&data.error)||"資料格式異常");
-    BOARD=data;                              // 驗證通過才覆蓋，避免壞資料污染後續 render
-    const m=BOARD.market, fng=m.fear_greed||{};
-    $("#fng").textContent=fng.value??"–"; $("#fngL").textContent=fng.label||"";
-    $("#bullN").textContent=m.bull_n??"–"; $("#bearN").textContent=m.bear_n??"–"; $("#totN").textContent=m.total_coins??"–";
-    $("#upd").textContent="更新："+new Date((BOARD.updated||0)*1000).toLocaleTimeString("zh-TW");
-    render();
-  }catch(e){
-    if(!BOARD) g.innerHTML=`<div class="loading">數據載入失敗：${e.message||e}<br><span style="font-size:12px;color:var(--muted)">上游數據源暫時無法取得，60 秒後自動重試。</span></div>`;
-  }
-}
-$("#tabs").addEventListener("click",e=>{
-  const t=e.target.closest(".tab"); if(!t)return;
-  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
-  t.classList.add("on"); CUR=t.dataset.g; QUERY=""; $("#q").value=""; render();
-});
-$("#q").addEventListener("input",e=>{ QUERY=e.target.value.trim().toLowerCase(); render(); });
-load(); setInterval(load, 60000);
+    const r=await fetch("data/board.json?t="+Date.now());
+    const b=await r.json();
+    const top=[...b.coins].sort((a,c)=>Math.abs(c.score)-Math.abs(a.score)).slice(0,8);
+    const m=b.market||{}, fng=(m.fear_greed||{});
+    const upd=new Date((b.updated||0)*1000).toLocaleString("zh-TW");
+    const rows=top.map(c=>{const cl=c.score>=20?"up":c.score<=-20?"down":"neu";const sg=c.score>0?"+":"";
+      return `<tr><td class="s">${c.symbol}</td><td>${c.sector||""}</td><td class="${cl}">${sg}${c.score}</td><td>${c.scenario}</td><td>${c.bias}</td></tr>`;}).join("");
+    box.innerHTML=`<p class="snapshot-meta">最近更新 ${upd}　·　掃描 ${m.total_coins} 幣　·　偏多 ${m.bull_n}／偏空 ${m.bear_n}　·　恐懼貪婪 ${fng.value??"–"}</p>
+      <table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }catch(e){ /* 靜默：登入後看完整 */ }
+})();
 </script>
 </body>
 </html>

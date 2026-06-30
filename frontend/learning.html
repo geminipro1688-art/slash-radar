@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>合約數據怎麼看？OI・資金費率・CVD・多空比 白話教學｜SLASH RADAR 學習資源</title>
+<meta name="description" content="一次看懂合約數據五大維度：未平倉量 OI、資金費率、主動買賣量 CVD、多空比、價格動能，以及它們怎麼組合成「增倉上行、減倉下行、下方吸籌」等情境分類。純教學、中立呈現、不給買賣建議。">
+<meta name="keywords" content="OI怎麼看,未平倉量,資金費率怎麼看,CVD,多空比,合約數據教學,持倉量異常,量價背離,合約選幣">
+<link rel="canonical" href="https://radar.slash-invest.com/learning">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="合約數據怎麼看？五大維度白話教學｜SLASH RADAR">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"合約數據怎麼看？OI・資金費率・CVD・多空比 白話教學","author":{"@type":"Organization","name":"SLASH RADAR"},"publisher":{"@type":"Organization","name":"slash-invest"},"description":"合約五大數據維度與情境分類的中立教學。"}
+</script>
+<style>
+:root{--line:rgba(212,175,55,.18);--line2:rgba(255,255,255,.07);--gold2:#f5c84b;--gold:#d4af37;
+  --text:#f5f1e8;--muted:#9b927f;--soft:#6f6759;--green:#16c784;--red:#ea3943;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.7;
+  background:radial-gradient(circle at 18% 8%,rgba(212,175,55,.10),transparent 32%),linear-gradient(135deg,#040404,#0a0906 48%,#060606);}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px 70px}
+header{display:flex;align-items:center;gap:18px;padding:16px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:9;background:linear-gradient(180deg,rgba(5,5,5,.96),rgba(5,5,5,.82));backdrop-filter:blur(8px)}
+.logo{font-weight:800;font-size:18px}.logo b{color:var(--gold2)}
+nav{display:flex;gap:16px;font-size:14px;margin-left:auto;flex-wrap:wrap}
+nav a{color:var(--muted);text-decoration:none}nav a:hover,nav a.on{color:var(--gold2)}
+h1{font-size:28px;margin:28px 0 8px;line-height:1.25}
+.intro{color:var(--muted);font-size:15px;margin-bottom:8px}
+h2{font-size:20px;margin:34px 0 10px;padding-left:11px;border-left:3px solid var(--gold)}
+h3{font-size:16px;margin:18px 0 6px;color:var(--gold2)}
+p{color:#d7d0c2;font-size:14.5px;margin:8px 0}
+.muted{color:var(--muted);font-size:13.5px}
+ul{margin:8px 0 8px 20px}li{color:#d7d0c2;font-size:14.5px;margin:5px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line2)}
+th{color:var(--soft);font-size:12.5px}
+.up{color:var(--green);font-weight:700}.down{color:var(--red);font-weight:700}
+.box{border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:16px 0;background:linear-gradient(160deg,#0d0c09,#0a0805)}
+.cta{display:inline-block;margin-top:6px;text-decoration:none;font-weight:700;font-size:14px;padding:10px 22px;border-radius:9px;color:#1a1306;background:linear-gradient(180deg,var(--gold2),var(--gold))}
+.disc{margin-top:30px;padding:14px;border:1px solid var(--line);border-radius:10px;font-size:11.5px;color:var(--soft);line-height:1.6}
+a.inl{color:var(--gold2);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">SLASH <b>RADAR</b></div>
+    <nav><a href="index.html">首頁</a><a href="app.html">市場儀表板</a><a href="calculator.html">倉位計算機</a><a class="on">學習資源</a></nav>
+  </header>
+
+  <h1>合約數據怎麼看？五大維度白話教學</h1>
+  <p class="intro">看不懂合約盤面，是因為數據太多、各說各話。這頁把 SLASH RADAR 用到的五個數據維度逐一講白話，再說明它們怎麼組合成情境分類。全程<b>中立呈現、不給任何買賣建議</b>——看懂結構，決策權在你。</p>
+
+  <h2>一、未平倉量 OI（權重最高）</h2>
+  <p>OI（Open Interest）是市場上「還沒平倉的合約部位總量」。它最有用的地方是搭配價格一起看：</p>
+  <table>
+    <tr><th>價格</th><th>OI</th><th>數據現象（中立）</th></tr>
+    <tr><td class="up">上漲</td><td class="up">增加</td><td>資金主動進場、部位增加（<b>增倉上行</b>）</td></tr>
+    <tr><td class="down">下跌</td><td class="up">增加</td><td>空方部位增加（<b>增倉下行</b>）</td></tr>
+    <tr><td class="up">上漲</td><td class="down">減少</td><td>部位減少的反彈，常見於空頭回補（<b>減倉反彈</b>）</td></tr>
+    <tr><td class="down">下跌</td><td class="down">減少</td><td>多頭離場、拋壓收斂（<b>減倉下行</b>）</td></tr>
+  </table>
+  <p class="muted">SLASH RADAR 把 OKX 與幣安兩所的 OI 聚合（皆 USD 計價、缺值跳過），所以看到的是「全市場」而非單一交易所的部位變化。</p>
+
+  <h2>二、資金費率 Funding Rate</h2>
+  <p>永續合約沒有到期日，靠「資金費率」把合約價格錨定現貨。它每隔幾小時在多空之間收付：</p>
+  <ul>
+    <li><b>正費率</b>：多頭付錢給空頭 → 代表做多的人多、<b>多方擁擠</b>。</li>
+    <li><b>負費率</b>：空頭付錢給多頭 → 代表做空的人多、<b>空方擁擠</b>。</li>
+  </ul>
+  <p>費率走到極端（例如年化很高）時，常被視為一種「過度擁擠」的數據訊號，雷達會標記<b>費率背離</b>。注意：擁擠不等於馬上反轉，這只是一個數據現象。</p>
+
+  <h2>三、主動買賣量 CVD</h2>
+  <p>CVD（Cumulative Volume Delta）是「主動買量 − 主動賣量」的累積。它能補上價格看不到的細節：</p>
+  <ul>
+    <li>價格<b>上漲</b>但 CVD 轉弱 → 上行動能在數據上走弱（<b>動能衰減</b>）。</li>
+    <li>價格<b>下跌</b>但主動買盤增加 → 出現下方承接的數據跡象（<b>下方吸籌</b>）。</li>
+  </ul>
+
+  <h2>四、多空比 Long/Short Ratio</h2>
+  <p>多空帳戶比反映散戶的持倉方向。它常被當成「反向參考」：當比值過度偏向一邊（過度擁擠），雷達會標記<b>多方擁擠</b>或<b>空方擁擠</b>，做為風險提示，而不是進場訊號。</p>
+
+  <h2>五、價格動能與槓桿擁擠</h2>
+  <p>1 小時漲跌幅衡量短線動能方向；而 <b>OI／市值比</b>偏高時，代表這個幣的槓桿部位相對市值很重，雷達會標記<b>槓桿擁擠</b>——這類幣波動往往更劇烈，純風險提示、不計分方向。</p>
+
+  <h2>這些怎麼變成一個「評分」？</h2>
+  <p>SLASH RADAR 把上面五個維度各自編碼成正負分再加總（OI 權重最高，其次動能、費率、CVD、多空比），落入 −100～+100 的<b>數據結構強度評分</b>，並用價格／OI／CVD 的組合得出情境標籤。重點是：<b>每張卡都透明列出每個維度貢獻幾分</b>，不是黑箱。</p>
+  <div class="box">
+    <h3>🔴 為什麼我們不給「進場價、止損、止盈」？</h3>
+    <p>因為依台灣《投信投顧法》，對不特定人提供具體買賣建議、目標價、明牌是受規範的。市面上不少工具直接給「現在做多 X、進場價、止損」，那在台灣是踩線的。SLASH RADAR 的設計選擇是：<b>只呈現已發生的數據結構，把判斷權還給你</b>。這既是合規，也是我們和那些工具最大的不同。</p>
+  </div>
+
+  <h2>怎麼用雷達 + 交易所返佣省成本</h2>
+  <p>看懂結構後若要實際交易，用交易所的邀請碼註冊可以拿手續費返佣（長期省很多）。雷達每張卡都有「去 OKX／幣安交易」按鈕，走的是 <a class="inl" href="https://www.slash-invest.com/" target="_blank" rel="noopener">slash-invest</a> 的返佣連結——四大所都有、明碼、免費。延伸閱讀：交易所手續費與返佣比較。</p>
+  <a class="cta" href="app.html">登入看完整雷達 →</a>
+
+  <div class="disc">⚠️ 本頁為合約數據教學，所有說明均為對已發生數據現象的中立描述，<b>不構成任何投資建議或買賣指令</b>。加密貨幣合約屬高風險商品，可能損失全部本金，投資前請自行評估。</div>
+</div>
+</body>
+</html>
