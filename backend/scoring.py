@@ -134,9 +134,14 @@ def build_board(enrich_top=12, min_vol=2e6):
         from . import sources as S  # 套件內相對匯入
     except ImportError:
         import sources as S         # 直接執行時
-    okx_t = S.okx_tickers(); okx_oi_map = S.okx_oi()
-    bn_t = S.binance_tickers(); bn_fund = S.binance_funding_all()
-    g = S.gecko_markets(pages=1)
+    def _safe(fn, default):                # 任一上游失敗（限速/被擋/逾時）都不該拖垮整個看板
+        try:
+            return fn()
+        except Exception:
+            return default
+    okx_t = _safe(S.okx_tickers, {}); okx_oi_map = _safe(S.okx_oi, {})
+    bn_t = _safe(S.binance_tickers, {}); bn_fund = _safe(S.binance_funding_all, {})
+    g = _safe(lambda: S.gecko_markets(pages=1), {})
 
     base = []
     for sym in (set(okx_t) | set(bn_t)):

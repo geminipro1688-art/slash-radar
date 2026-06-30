@@ -11,6 +11,7 @@ FRONT = os.path.join(os.path.dirname(__file__), "..", "frontend")
 DOMAIN = os.environ.get("SITE_DOMAIN", "https://radar.slash-invest.com")
 _board = {"t": 0.0, "data": None}
 _lock = threading.Lock()
+_building = threading.Lock()   # P0-2: 同一時間只允許一個執行緒重建看板（驚群保護），且 build 不在 _lock 內
 
 ROBOTS = f"User-agent: *\nAllow: /\nSitemap: {DOMAIN}/sitemap.xml\n"
 def _sitemap():
@@ -20,13 +21,22 @@ def _sitemap():
             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + "</urlset>")
 
 def get_board(ttl=60):
-    with _lock:                       # build 也在鎖內，避免背景採集器與頁面請求重複建置
-        now = time.time()
-        if _board["data"] and now - _board["t"] < ttl:
-            return _board["data"]
-        data = scoring.build_board(enrich_top=30)
-        _board["data"], _board["t"] = data, now
-        return data
+    now = time.time()
+    with _lock:  # read cache briefly
+        cached = _board["data"]
+        if cached and now - _board["t"] < ttl:
+            return cached
+    # P0-2: build moved OUT of _lock so a 10-25s rebuild won't block other requests
+    if _building.acquire(blocking=False):  # only one thread rebuilds; others serve stale
+        try:
+            data = scoring.build_board(enrich_top=30)
+            with _lock:
+                _board["data"], _board["t"] = data, time.time()
+            return data
+        finally:
+            _building.release()
+    # stale-while-revalidate; first boot with no cache falls back to a sync build
+    return cached if cached else scoring.build_board(enrich_top=30)
 
 def _bg_collector():
     """背景每 120 秒掃描一次，讓訊號流持續累積。"""

@@ -223,7 +223,7 @@ function renderSectors(){
 }
 
 function render(){
-  if(!BOARD)return;
+  if(!BOARD||!Array.isArray(BOARD.coins))return;
   const g=$("#grid");
   if(QUERY){
     const list=BOARD.coins.filter(c=>c.symbol.toLowerCase().includes(QUERY)||((c.name||'').toLowerCase().includes(QUERY)));
@@ -233,22 +233,29 @@ function render(){
   }
   if(CUR==="oi"){ g.className=""; g.innerHTML=renderOI(); return; }
   if(CUR==="sector"){ g.className=""; g.innerHTML=renderSectors(); return; }
-  const list = CUR==="all" ? [...BOARD.coins].sort((a,b)=>b.score-a.score).slice(0,80) : (BOARD.groups[CUR]||[]);
+  const list = CUR==="all" ? [...BOARD.coins].sort((a,b)=>b.score-a.score).slice(0,80) : ((BOARD.groups&&BOARD.groups[CUR])||[]);
   g.className="grid";
   g.innerHTML = list.length? list.map(card).join("") : `<div class="loading">此分類目前沒有達標的幣種，可切換「全部」。</div>`;
 }
 
 async function load(){
+  const g=$("#grid");
   try{
     const API=location.protocol.startsWith("http")?"":"http://127.0.0.1:8088";
-    const r=await fetch(API+"/api/board"); BOARD=await r.json();
+    const r=await fetch(API+"/api/board");
+    if(!r.ok) throw new Error("伺服器回應 "+r.status);
+    const data=await r.json();
+    if(!data || !data.market || !Array.isArray(data.coins))
+      throw new Error((data&&data.error)||"資料格式異常");
+    BOARD=data;                              // 驗證通過才覆蓋，避免壞資料污染後續 render
     const m=BOARD.market, fng=m.fear_greed||{};
     $("#fng").textContent=fng.value??"–"; $("#fngL").textContent=fng.label||"";
-    $("#bullN").textContent=m.bull_n; $("#bearN").textContent=m.bear_n; $("#totN").textContent=m.total_coins;
-    const d=new Date(BOARD.updated*1000);
-    $("#upd").textContent="更新："+d.toLocaleTimeString("zh-TW");
+    $("#bullN").textContent=m.bull_n??"–"; $("#bearN").textContent=m.bear_n??"–"; $("#totN").textContent=m.total_coins??"–";
+    $("#upd").textContent="更新："+new Date((BOARD.updated||0)*1000).toLocaleTimeString("zh-TW");
     render();
-  }catch(e){ $("#grid").innerHTML=`<div class="loading">載入失敗：${e}</div>`; }
+  }catch(e){
+    if(!BOARD) g.innerHTML=`<div class="loading">數據載入失敗：${e.message||e}<br><span style="font-size:12px;color:var(--muted)">上游數據源暫時無法取得，60 秒後自動重試。</span></div>`;
+  }
 }
 $("#tabs").addEventListener("click",e=>{
   const t=e.target.closest(".tab"); if(!t)return;
