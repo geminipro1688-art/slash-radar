@@ -63,7 +63,7 @@ def _render_sample_rows(board, n=8):
             f'<td>{c.get("sector","")}</td>'
             f'<td class="{cls}">{sign}{sc}</td>'
             f'<td>{c.get("scenario","")}</td>'
-            f'<td>{c.get("bias","")}</td></tr>')
+            f'<td class="{cls}">{c.get("level","")}</td></tr>')
     upd = time.strftime("%Y-%m-%d %H:%M", time.gmtime(board.get("updated", time.time()))) + " UTC"
     m = board.get("market", {})
     head = (f'<p class="snapshot-meta">最近更新 {upd}　·　掃描 {m.get("total_coins","–")} 幣　·　'

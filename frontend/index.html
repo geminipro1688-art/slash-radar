@@ -113,7 +113,7 @@ nav a:hover{color:var(--gold2)}
     <div class="lead">下方為公開樣本（每約 15 分鐘更新）。完整 400+ 幣評分、OI 異動雙榜、板塊輪動、訊號流在登入後。</div>
     <div class="snapshot" id="snapshot">
       <!--SNAPSHOT_START-->
-<p class="snapshot-meta">最近更新 2026-06-30 09:58 UTC　·　掃描 229 幣　·　偏多 5／偏空 8　·　恐懼貪婪 15</p><table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody><tr><td class="s">CAP</td><td>其他</td><td class="up">+41</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">ORDI</td><td>其他</td><td class="down">-40</td><td>動能下行</td><td>合約數據偏空方結構</td></tr><tr><td class="s">KGEN</td><td>其他</td><td class="up">+31</td><td>動能衰減（價漲量縮）</td><td>合約數據偏多方結構</td></tr><tr><td class="s">RE</td><td>其他</td><td class="up">+29</td><td>增倉上行</td><td>合約數據偏多方結構</td></tr><tr><td class="s">LAB</td><td>其他</td><td class="down">-29</td><td>增倉下行</td><td>合約數據偏空方結構</td></tr><tr><td class="s">AI</td><td>其他</td><td class="down">-28</td><td>動能下行</td><td>合約數據偏空方結構</td></tr><tr><td class="s">H</td><td>其他</td><td class="down">-28</td><td>減倉下行</td><td>合約數據偏空方結構</td></tr><tr><td class="s">RAVE</td><td>其他</td><td class="down">-27</td><td>增倉下行</td><td>合約數據偏空方結構</td></tr></tbody></table>
+<p class="snapshot-meta">最近更新 2026-06-30 10:25 UTC　·　掃描 229 幣　·　偏多 6／偏空 9　·　恐懼貪婪 15</p><table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody><tr><td class="s">CAP</td><td>其他</td><td class="up">+44</td><td>增倉上行</td><td class="up">偏多方</td></tr><tr><td class="s">CC</td><td>其他</td><td class="down">-37</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">KGEN</td><td>其他</td><td class="down">-37</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">ORDI</td><td>其他</td><td class="down">-33</td><td>減倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">RAVE</td><td>其他</td><td class="down">-32</td><td>增倉下行</td><td class="down">偏空方</td></tr><tr><td class="s">SKY</td><td>其他</td><td class="up">+27</td><td>減倉反彈</td><td class="up">偏多方</td></tr><tr><td class="s">UB</td><td>其他</td><td class="up">+26</td><td>動能衰減（價漲量縮）</td><td class="up">偏多方</td></tr><tr><td class="s">PI</td><td>其他</td><td class="down">-25</td><td>減倉下行</td><td class="down">偏空方</td></tr></tbody></table>
 <!--SNAPSHOT_END-->
     </div>
     <p class="locknote">想看全部 400+ 幣的評分、情境與一鍵下單？<a href="#login">登入解鎖完整雷達 →</a></p>
@@ -203,7 +203,7 @@ async function doLogin(){
     const m=b.market||{}, fng=(m.fear_greed||{});
     const upd=new Date((b.updated||0)*1000).toLocaleString("zh-TW");
     const rows=top.map(c=>{const cl=c.score>=20?"up":c.score<=-20?"down":"neu";const sg=c.score>0?"+":"";
-      return `<tr><td class="s">${c.symbol}</td><td>${c.sector||""}</td><td class="${cl}">${sg}${c.score}</td><td>${c.scenario}</td><td>${c.bias}</td></tr>`;}).join("");
+      return `<tr><td class="s">${c.symbol}</td><td>${c.sector||""}</td><td class="${cl}">${sg}${c.score}</td><td>${c.scenario}</td><td class="${cl}">${c.level||c.bias||""}</td></tr>`;}).join("");
     box.innerHTML=`<p class="snapshot-meta">最近更新 ${upd}　·　掃描 ${m.total_coins} 幣　·　偏多 ${m.bull_n}／偏空 ${m.bear_n}　·　恐懼貪婪 ${fng.value??"–"}</p>
       <table class="snapshot-table"><thead><tr><th>幣種</th><th>板塊</th><th>數據評分</th><th>情境</th><th>結構</th></tr></thead><tbody>${rows}</tbody></table>`;
   }catch(e){ /* 靜默：登入後看完整 */ }

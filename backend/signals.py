@@ -82,7 +82,7 @@ def detect(board):
             continue
         out.append({
             "ts": int(time.time()), "symbol": c["symbol"], "type": typ,
-            "scenario": scen, "score": sc, "grade": c["grade"],
+            "scenario": scen, "score": sc, "grade": c["grade"], "level": c.get("level"),
             "chg_1h": c.get("chg_1h"), "oi_chg": c.get("oi_chg"),
             "exchanges": c.get("exchanges", []), "price": c.get("price"), "image": c.get("image"),
         })

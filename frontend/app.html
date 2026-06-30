@@ -59,6 +59,17 @@ nav a.on,nav a:hover{color:var(--gold2)}
 .pill{font-size:11px;padding:2px 8px;border-radius:6px;background:rgba(212,175,55,.12);color:var(--gold2);width:fit-content}
 .scen{font-size:12px;color:var(--text);opacity:.9}
 .sect{font-size:10.5px;color:var(--soft)}
+/* 多空結構等級 + 儀表 */
+.lvl{font-size:13.5px;font-weight:800}
+.lvl.up{color:var(--green)}.lvl.down{color:var(--red)}.lvl.neu{color:var(--gold2)}
+.gz{position:relative;height:8px;border-radius:5px;margin:9px 0 3px;
+  background:linear-gradient(90deg,rgba(234,57,67,.45),rgba(234,57,67,.12) 38%,rgba(255,255,255,.06) 50%,rgba(22,199,132,.12) 62%,rgba(22,199,132,.45))}
+.gz .mid{position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--soft)}
+.gz .dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid #0a0805;box-shadow:0 0 6px rgba(0,0,0,.5)}
+.gzlab{display:flex;justify-content:space-between;font-size:9.5px;color:var(--soft);margin-bottom:6px}
+.rels{display:flex;flex-wrap:wrap;gap:6px}
+.rel{font-size:12px;border:1px solid var(--line2);border-radius:7px;padding:4px 9px;cursor:pointer;background:rgba(255,255,255,.03)}
+.rel:hover{border-color:var(--gold)}.rel b{font-weight:800}
 .facs{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
 .fac{font-size:11px;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:6px;padding:2px 7px}
 .flags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
@@ -157,10 +168,48 @@ const $=s=>document.querySelector(s);
 function fmtPx(p){if(p==null)return"–";p=+p;return p>=100?p.toLocaleString(undefined,{maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toPrecision(4);}
 function fmtBig(n){if(!n)return"–";const a=Math.abs(n);if(a>=1e9)return(n/1e9).toFixed(2)+"B";if(a>=1e6)return(n/1e6).toFixed(1)+"M";return n.toLocaleString();}
 function cls(s){return s>=20?"bull":s<=-20?"bear":"cand";}
+function levelInfo(s){
+  if(s>=50)return{l:"強烈偏多方",c:"up"};
+  if(s>=20)return{l:"偏多方",c:"up"};
+  if(s>-20)return{l:"多空分歧",c:"neu"};
+  if(s>-50)return{l:"偏空方",c:"down"};
+  return{l:"強烈偏空方",c:"down"};
+}
+function gauge(s){
+  const pct=Math.max(2,Math.min(98,(s+100)/2));
+  const col=s>=20?"var(--green)":s<=-20?"var(--red)":"var(--gold2)";
+  return `<div class="gz"><div class="mid"></div><div class="dot" style="left:${pct}%;background:${col}"></div></div>
+    <div class="gzlab"><span>偏空 −100</span><span>中性 0</span><span>+100 偏多</span></div>`;
+}
+function readHint(s){
+  const i=levelInfo(s);
+  let base;
+  if(i.c==="up") base="合約數據上資金增倉、主動買盤佔優"+(s>=50?"，偏多結構明顯":"");
+  else if(i.c==="down") base="合約數據偏空、主動賣壓較重"+(s<=-50?"，偏空結構明顯":"");
+  else base="多空力量接近、方向未明";
+  return `📖 怎麼讀：目前呈「${i.l}」結構（${base}）。結構強弱不等於未來漲跌，極端擁擠反而可能反轉；本站只描述已發生數據，<b>不提供進出場、做多做空建議</b>。`;
+}
+function relatedHTML(x){
+  let peers=[], title="";
+  if(x.sector && x.sector!=="其他"){
+    peers=BOARD.coins.filter(c=>c.sector===x.sector&&c.symbol!==x.symbol)
+      .sort((a,b)=>Math.abs(b.score)-Math.abs(a.score)).slice(0,8);
+    title="同板塊 "+x.sector;
+  }
+  if(!peers.length){
+    peers=BOARD.coins.filter(c=>c.symbol!==x.symbol)
+      .sort((a,b)=>Math.abs(a.score-x.score)-Math.abs(b.score-x.score)).slice(0,8);
+    title="結構相近";
+  }
+  if(!peers.length)return "";
+  const chips=peers.map(c=>{const ci=levelInfo(c.score);const sg=c.score>0?"+":"";
+    return `<span class="rel" onclick="openModal('${c.symbol}')"><b>${c.symbol}</b> <span class="${ci.c}">${sg}${c.score}</span></span>`;}).join("");
+  return `<div style="margin:15px 0 6px;font-size:12px;color:var(--gold2)">相關幣種 · ${title}（點看詳情）</div><div class="rels">${chips}</div>`;
+}
 
 function card(x){
   const c=cls(x.score), sc=(x.score>0?"+":"")+x.score;
-  const chg1=x.chg_1h;
+  const chg1=x.chg_1h; const li=levelInfo(x.score);
   const facs=(x.factors||[]).map(f=>`<span class="fac">${f.key} ${f.points>0?"+":""}${f.points}</span>`).join("");
   const flags=(x.flags||[]).map(f=>`<span class="flag">${f}</span>`).join("");
   const exch=x.exchanges||[];
@@ -177,10 +226,10 @@ function card(x){
         <div class="c ${chg1>=0?'up':'down'}">1h ${chg1>=0?"+":""}${chg1??"–"}%</div></div>
     </div>
     <div class="mid">
-      <div class="score ${c=='bull'?'up':c=='bear'?'down':'neu'}">${sc}</div>
-      <div class="badges"><span class="pill">${x.grade}</span><span class="scen">${x.scenario}</span></div>
+      <div class="score ${li.c}">${sc}</div>
+      <div class="badges"><span class="lvl ${li.c}">${x.level||li.l}</span><span class="scen">${x.scenario}</span><span class="pill">${x.grade}</span></div>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:6px">${x.bias}</div>
+    ${gauge(x.score)}
     <div class="facs">${facs}</div>
     ${flags?`<div class="flags">${flags}</div>`:""}
     ${x.explain?`<div class="expl">🤖 ${x.explain}</div>`:""}
@@ -191,7 +240,7 @@ function card(x){
 
 function openModal(sym){
   const x=BYSYM[sym]; if(!x)return;
-  const c=cls(x.score), sc=(x.score>0?"+":"")+x.score;
+  const c=cls(x.score), sc=(x.score>0?"+":"")+x.score; const li=levelInfo(x.score);
   const facs=(x.factors||[]).map(f=>`<div class="mfac"><span>${f.key}　<span style="color:var(--soft)">${f.detail}</span></span><b class="${f.points>0?'up':f.points<0?'down':'neu'}">${f.points>0?'+':''}${f.points}</b></div>`).join("");
   const dq=(x.data_quality||[]).join("、")||"—";
   const exch=(x.exchanges||[]).join(" + ");
@@ -204,8 +253,10 @@ function openModal(sym){
       <div><div style="font-weight:800;font-size:19px">${x.symbol}　<span style="font-size:12px;color:var(--soft)">${x.name||""}</span></div>
       <div style="font-size:11.5px;color:var(--soft)">${x.sector||""}　·　${exch||"—"}</div></div>
       <span class="x" onclick="closeModal()">×</span></div>
-    <div class="mscore ${c=='bull'?'up':c=='bear'?'down':'neu'}">${sc}　<span style="font-size:14px;color:var(--muted)">${x.grade}</span></div>
-    <div style="font-size:13px;color:var(--text);margin-bottom:4px">${x.scenario}　·　${x.bias}</div>
+    <div class="mscore ${li.c}">${sc}　<span style="font-size:15px">${x.level||li.l}</span>　<span style="font-size:13px;color:var(--muted)">${x.grade}</span></div>
+    <div style="font-size:13px;color:var(--text);margin-bottom:2px">${x.scenario}</div>
+    ${gauge(x.score)}
+    <div class="expl">${readHint(x.score)}</div>
     ${x.explain?`<div class="expl">🤖 ${x.explain}</div>`:""}
     <div style="margin:10px 0 4px;font-size:12px;color:var(--gold2)">各維度貢獻</div>
     ${facs}
@@ -217,6 +268,7 @@ function openModal(sym){
     <div class="mrow"><span class="k">24h 成交額</span><span class="v">$${fmtBig(x.vol_usdt_24h)}</span></div>
     <div class="mrow"><span class="k">資料完整度</span><span class="v">${dq}</span></div>
     ${x.flags&&x.flags.length?`<div class="flags" style="margin-top:10px">${x.flags.map(f=>`<span class="flag">${f}</span>`).join("")}</div>`:""}
+    ${relatedHTML(x)}
     <div class="cta" style="margin-top:14px">${ctas.join("")}</div>
     <div class="disc" style="margin-top:10px">${x.disclaimer||""}</div>`;
   $("#modal").classList.add("on");

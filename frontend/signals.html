@@ -91,7 +91,7 @@ function sigCard(s){
       <span class="sym">${s.symbol}</span><span>${exTag}</span>
       <span class="sc ${c=='bull'?'up':c=='bear'?'down':'neu'}">${s.score>0?'+':''}${s.score}</span>
     </div>
-    <div class="scen">${s.scenario}　·　${s.grade}　·　$${fmtPx(s.price)}</div>
+    <div class="scen">${s.level?`<b class="${c=='bull'?'up':c=='bear'?'down':'neu'}">${s.level}</b>　·　`:''}${s.scenario}　·　${s.grade}　·　$${fmtPx(s.price)}</div>
     <div class="exp">${s.explain||""}</div>
     <div class="cta">${ctas.join("")}</div>
   </div>`;

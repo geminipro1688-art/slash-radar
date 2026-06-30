@@ -125,13 +125,25 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
     else:
         bias = "多空分歧 / 中性"
 
+    # 5 級結構等級（讓「偏多/偏空到什麼程度」一眼可讀；仍是數據結構描述，非買賣指令）
+    if score >= 50:
+        level = "強烈偏多方"
+    elif score >= 20:
+        level = "偏多方"
+    elif score > -20:
+        level = "多空分歧"
+    elif score > -50:
+        level = "偏空方"
+    else:
+        level = "強烈偏空方"
+
     return {
         "symbol": c.get("symbol"), "name": c.get("name"), "exchanges": c.get("exchanges", []),
         "sector": c.get("sector") or SEC.sector_of(c.get("symbol")),
         "image": c.get("image"), "price": c.get("price") or c.get("last"),
         "chg_1h": round(pc1, 2), "chg_24h": round(pc24, 2),
         "score": score, "grade": grade, "scenario": scenario,
-        "bias": bias, "factors": factors, "flags": flags, "data_quality": dq,
+        "bias": bias, "level": level, "factors": factors, "flags": flags, "data_quality": dq,
         "oi_usd": round(oi_usd), "oi_chg": (round(oi_chg, 2) if oi_chg is not None else None),
         "oi_mcap_ratio": round(oi_mcap, 4), "funding": (round(funding, 4) if funding is not None else None),
         "vol_usdt_24h": round(vol), "disclaimer": DISCLAIMER,
