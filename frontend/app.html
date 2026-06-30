@@ -279,7 +279,8 @@ async function load(){
     $("#alt").textContent=(m.altseason??"–")+(m.altseason!=null?"%":"");
     const af=$("#avgF");af.textContent=(m.avg_funding!=null?(m.avg_funding>0?"+":"")+m.avg_funding+"%":"–");
     af.className="val "+(m.avg_funding>0?"down":m.avg_funding<0?"up":"neu");
-    $("#upd").textContent="更新 "+new Date((BOARD.updated||0)*1000).toLocaleTimeString("zh-TW");
+    const src=(m.sources||[]).join("·");
+    $("#upd").textContent="更新 "+new Date((BOARD.updated||0)*1000).toLocaleTimeString("zh-TW")+(src?"　來源 "+src:"");
     render();
   }catch(e){ if(!BOARD)g.innerHTML=`<div class="loading">快照載入失敗：${e.message||e}<br><span style="font-size:12px">5 分鐘後自動重試。</span></div>`; }
 }

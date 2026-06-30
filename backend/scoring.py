@@ -133,7 +133,7 @@ def score_coin(c, oi_chg=None, funding=None, lsr=None, cvd=None):
         "score": score, "grade": grade, "scenario": scenario,
         "bias": bias, "factors": factors, "flags": flags, "data_quality": dq,
         "oi_usd": round(oi_usd), "oi_chg": (round(oi_chg, 2) if oi_chg is not None else None),
-        "oi_mcap_ratio": round(oi_mcap, 4),
+        "oi_mcap_ratio": round(oi_mcap, 4), "funding": (round(funding, 4) if funding is not None else None),
         "vol_usdt_24h": round(vol), "disclaimer": DISCLAIMER,
     }
 
@@ -229,15 +229,16 @@ def build_board(enrich_top=30, min_vol=2e6, lsr_top=30):
     altseason = round(100 * alt_out / len(top_liq)) if top_liq else None
     breadth = round(100 * len(bull) / max(1, len(bull) + len(bear))) if (bull or bear) else 50
     total_oi = sum((x.get("oi_usd") or 0) for x in allcoins)
-    cf = [bn_fund[x["symbol"]] for x in core if x["symbol"] in bn_fund]
+    cf = [x["funding"] for x in core if x.get("funding") is not None]   # 用實際套用的費率（OKX/幣安皆可）
     avg_funding = round(sum(cf) / len(cf), 4) if cf else None
+    srcs = [s for s, ok in [("OKX", bool(okx_t)), ("幣安", bool(bn_t)), ("CoinGecko", bool(g))] if ok]
 
     return {
         "updated": int(time.time()),
         "market": {"fear_greed": S.fear_greed(), "scored": len(core),
                    "bull_n": len(bull), "bear_n": len(bear),
                    "total_coins": len(allcoins),
-                   "sources": ["OKX", "幣安", "CoinGecko"],
+                   "sources": srcs,
                    "altseason": altseason, "breadth": breadth,
                    "total_oi_usd": round(total_oi), "avg_funding": avg_funding,
                    "btc_chg_24h": round(btc24, 2)},

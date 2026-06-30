@@ -89,8 +89,23 @@ def _inject_landing(board):
     print("[snapshot] index.html sample injected (SEO)")
 
 
+def _write_seo():
+    """產生靜態 robots.txt / sitemap.xml（Pages 無後端路由）。SITE_BASE 換自訂網域只改這個環境變數。"""
+    base = os.environ.get("SITE_BASE", "https://geminipro1688-art.github.io/slash-radar").rstrip("/")
+    pub = ["/", "/calculator.html", "/learning.html"]   # 只放公開（吃 SEO）頁
+    robots = (f"User-agent: *\nAllow: /\nDisallow: /app.html\nDisallow: /signals.html\n"
+              f"Sitemap: {base}/sitemap.xml\n")
+    urls = "".join(f"<url><loc>{base}{p}</loc><changefreq>hourly</changefreq></url>" for p in pub)
+    sitemap = ('<?xml version="1.0" encoding="UTF-8"?>'
+               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + urls + "</urlset>")
+    open(os.path.join(FRONT, "robots.txt"), "w", encoding="utf-8").write(robots)
+    open(os.path.join(FRONT, "sitemap.xml"), "w", encoding="utf-8").write(sitemap)
+    print(f"[snapshot] robots.txt / sitemap.xml written (base={base})")
+
+
 def main():
     os.makedirs(DATA, exist_ok=True)
+    _write_seo()
     board = _build_with_retry()
     bpath = os.path.join(DATA, "board.json")
     if board is None:
